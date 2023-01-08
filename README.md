@@ -79,16 +79,27 @@ Examples : /ls
 ```
 
 ### General Commands
-**Change the target directory:**
-`/ap <absolute path>` or `/cd <relative path>` (in relation to the script directory)
+#### Change the target directory:
+```
+/ap <absolute path>
+``` 
+or 
+```
+/cd <relative path>
+``` 
+(in relation to the script directory)
 
-**List the content of a directory:**
-`/ls (column: num) (dir: -s / --script ; -t / --target)` (default: target dir, 3 columns)
+#### List the content of a directory:
+```/ls (column: num) (dir: -s / --script ; -t / --target)``` 
+(default: target dir, 3 columns)
 
-**Configure the number of cpus used for the multithreaded processes:**
-`/t (threads: num ; -a / --all ; -h / --half ; -q / --quarter)` (default: all threads)
+#### Configure the number of cpus used for the multithreaded processes:
+```
+/t (threads: num ; -a / --all ; -h / --half ; -q / --quarter)
+``` 
+(default: all threads)
 
-**Misc:**
+#### Misc:
 ```
 * /c             : clear the display
 
@@ -98,15 +109,24 @@ Examples : /ls
 ```
 
 ### SearTxT Commands
-**Change the search method:**
-`/mt (method: -e / --exact ; -p / --proximity)` (default: exact match)
+#### Change the search method:
+```
+/mt (method: -e / --exact ; -p / --proximity)
+``` 
+(default: exact match)
 
 ### Texter Commands
-**Start the conversion process:**
-`/cv`
+#### Start the conversion process:
+```
+/cv
+```
 
-**Download and install pandoc:**
-`/pd`
+#### Download and install pandoc:
+```
+/pd
+```
 
-**Cat:**
-`/cat`
+#### Cat:
+```
+/cat
+```
