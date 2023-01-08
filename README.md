@@ -1,13 +1,15 @@
 # SearTxT & Texter
 
 ## Table of Contents
-1. Introduction
-2. Features
-3. Installation
-4. Quickstart
-5. Commands
-6. Conversion
+1. [Introduction](#introduction)
+2. [Features](#features)
+3. [Installation](#installation)
+4. [Usage](#usage)
+5. [Quickstart](#quickstart)
+6. [Conversion](#conversion)
 7. Building From Source
+8. Known Issues
+9. Acknowledgements
 
 ## Introduction
 * **SearTxT** is a simple command-line tool to search for virtually any string of text contained within `.txt` files in a user-specified directory.
@@ -40,7 +42,7 @@ Should you want to run SearTxT or Texter directly with the Python Interpreter, m
 * Pip packages (Texter): `pypandoc`, `pdfminer.six`
 
 #### Linux
-Simply download Python from your package manager of choice e.g:
+Simply download Python from your package manager of choice, e.g.:
 
 **APT**
 ``` shell
@@ -66,7 +68,45 @@ Once you have installed Python and added the installation directory to your `PAT
 python -m pip install pypandoc pdfminer.six
 ```
 
+## Usage
+```
+Usage    : /command <required parameters> [optional parameters]
+ or      : <any string of characters>
 
+Examples : /ls
+           /ls 4 -s or /ls 4 --script
+	   /t -h    or /t --half
+```
 
+### General Commands
+**Change the target directory:**
+`/ap <absolute path>` or `/cd <relative path>` (in relation to the script directory)
 
+**List the content of a directory:**
+`/ls (column: num) (dir: -s / --script ; -t / --target)` (default: target dir, 3 columns)
 
+**Configure the number of cpus used for the multithreaded processes:**
+`/t (threads: num ; -a / --all ; -h / --half ; -q / --quarter)` (default: all threads)
+
+**Misc:**
+```
+* /c             : clear the display
+
+* /h             : show all available commands
+
+* /q or <CTRL-C> : terminate the program
+```
+
+### SearTxT Commands
+**Change the search method:**
+`/mt (method: -e / --exact ; -p / --proximity)` (default: exact match)
+
+### Texter Commands
+**Start the conversion process:**
+`/cv`
+
+**Download and install pandoc:**
+`/pd`
+
+**Cat:**
+`/cat`
