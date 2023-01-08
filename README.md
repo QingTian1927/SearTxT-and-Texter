@@ -90,7 +90,9 @@ or
 (in relation to the script directory)
 
 #### List the content of a directory:
-```/ls (column: num) (dir: -s / --script ; -t / --target)``` 
+```
+/ls (column: num) (dir: -s / --script ; -t / --target)
+``` 
 (default: target dir, 3 columns)
 
 #### Configure the number of cpus used for the multithreaded processes:
