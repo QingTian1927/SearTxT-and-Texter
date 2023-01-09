@@ -30,7 +30,7 @@ I wrote these programs just for fun, so don't expect the same level of polish an
 ## Installation
 Simply download the latest release, extract the content of the `.zip` archive, and launch SearTxT or Texter with the appropriate executable.
 
-### Texter-specific requirements:
+### Texter-specific Requirements:
 Texter can only convert `.docx` files with the `pandoc` runtime installed, so make sure you download it using the `/pd` command prior to starting the conversion process. 
 
 **Note:** Should the `/pd` command fails for any reason, you can download pandoc directly from the [official website](https://pandoc.org/installing.html) and install it manually.
@@ -55,7 +55,7 @@ sudo pacman -S python
 ```
 
 #### Windows
-You can either download Python from the [official website](https://www.python.org/downloads/) or install it with a package manager such as `scoop`:
+You can either download Python from the [official website](https://www.python.org/downloads/) or install it with a package manager such as [scoop](https://scoop.sh/):
 
 ``` shell
 scoop install python
@@ -176,7 +176,7 @@ Simply launch Texter and use the `/pd` command. Alternative, you can also downlo
 #### Start the conversion
 If you have correctly set up and moved your files inside the target directory, simply start the conversion by using the `/cv` command.
 
-**Note (ver `1.0`):** Make sure to **BACKUP** your files as Texter **PERMANENTLY DELETES** the original file formats after the conversion.
+**Note:** Make sure to **BACKUP** your files as Texter **PERMANENTLY DELETES** the original file formats after the conversion.
 
 #### Check the results
 Simply navigate to the specified target directory and check the newly-converted `.txt` files with your favorite text editor.
