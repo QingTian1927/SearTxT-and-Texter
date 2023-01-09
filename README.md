@@ -137,19 +137,19 @@ or
 ### General Guide
 SearTxT and Texter are command-line tools, so you will need to type out the exact command of the desired operation. 
 
-#### Configure the Target Directory
+#### Configure the target directory
 First, start by configuring your `target directory`. This is where SearTxT and Texter will try to search and convert your files respectively.
 
 **Example (Windows file path):**
 ```
 *****DBVG SearTxT ver 1.0*****
-Script directory: C:\Downloads\SearTxT 
+Script directory: D:\Downloads\SearTxT 
 Search method: exact match
 
-[SearTxT ~example]$ /ap C:\Documents\PDF Stuff
+[SearTxT ~example]$ /ap C:\Users\DBVG\Documents\PDF Stuff
 <ENTER>
 .......
-[SearTxT C:\Documents\PDF Stuff]$ _
+[SearTxT C:\Users\DBVG\Documents\PDF Stuff]$ _
 ```
 
 **Example (Unix file path):**
@@ -163,8 +163,50 @@ Script directory: /home/DBVG/SearTxT
 [Texter /home/DBVG/Documents/DOCX Stuff]$ _
 ```
 
+To check whether you have entered the correct path, use the `/ls` command to check the content of target directory.
+
 **Note:** The `~` symbol indicates that the current target directory is inside the script directory, hence a relative path.
 
 ### Texter Quickstart Guide
-Since SearTxT can only search for strings in `.txt` files, you will have to run Texter first to convert other file formats (e.g. `.docx`, `.pdf`, `.doc`, etc.) into `.txt`
+Since SearTxT can only search for strings in `.txt` files, you will have to run Texter first to convert other file formats (e.g. `.docx`, `.pdf`, `.doc`, etc.) into `.txt`.
 
+#### Download and install pandoc
+Simply launch Texter and use the `/pd` command. Alternative, you can also download and install pandoc manually, but make sure you add the installation directory to your `PATH`.
+
+#### Start the conversion
+If you have correctly set up and moved your files inside the target directory, simply start the conversion by using the `/cv` command.
+
+**Note (ver `1.0`):** Make sure to **BACKUP** your files as Texter **PERMANENTLY DELETES** the original file formats after the conversion.
+
+#### Check the results
+Simply navigate to the specified target directory and check the newly-converted `.txt` files with your favorite text editor.
+
+### SearTxT Quickstart Guide
+This guide assumes that you have already converted your files into `.txt` files.
+
+#### Set the search method
+**To search for exact matches of the original query:**
+```
+/mt -e
+```
+or
+```
+/mt --exact
+```
+
+**To search for approximate matches of the original query:**
+```
+/mt -p
+```
+or
+```
+/mt --proximity
+```
+
+#### Start searching
+Simply type in virtually any string of characters and then hit `ENTER`.
+
+**Note:** The search query cannot start with the `/` character, as this is an identifier for commands. If your search query starts with `/`, SearTxT will throw an error message.
+
+#### Check the results
+If SearTxT finds any matches, it will print out the results on the screen. Simply use your mouse to scroll through the result list.
