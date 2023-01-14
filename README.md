@@ -1,16 +1,4 @@
 # SearTxT & Texter
-## Table of Contents
-1. [Introduction](#introduction)
-2. [Features](#features)
-3. [Installation](#installation)
-4. [Usage](#usage)
-5. [Quickstart](#quickstart)
-6. [Conversion](#conversion)
-7. [Building From Source](#building-from-source)
-8. Known Issues
-9. Acknowledgements
-
-## Introduction
 These are the improved versions of my original Python Text Searcher, which was unnecessarily bloated, to say the least.
 
 * **SearTxT** is a simple command-line tool to search for virtually any string of text contained within `.txt` files in a user-specified directory.
@@ -18,6 +6,16 @@ These are the improved versions of my original Python Text Searcher, which was u
 * **Texter** is a complementary file converter that can convert `.docx` , `.pdf` as well as several other file formats into `.txt` for use with SearTxT.
 
 I wrote these programs just for fun, so don't expect the same level of polish and utility that may come with tools such as `fzf` or `grep`. With that said though, I still hope that you would find SearTxT & Texter to be useful somehow.
+
+## Table of Contents
+1. [Features](#features)
+1. [Installation](#installation)
+1. [Usage](#usage)
+1. [Quickstart](#quickstart)
+1. [Conversion](#conversion)
+1. [Building From Source](#building-from-source)
+1. Known Issues
+1. Acknowledgements
 
 ## Features
 * 8 times the performance improvement :0
@@ -213,7 +211,7 @@ If SearTxT finds any matches, it will print out the results on the screen. Simpl
 ## Conversion
 As of version `1.0`. Texter officially supports `.docx` and `.pdf` files. However, conversion from `.pdf` to plain text, especially from files with a large number of non-latin characters, can be rather unreliable as it can break the formatting of the original documents.
 
-Unofficially, Texter by default can also try to convert the following file formats:
+Unofficially, Texter by default can also *try to* convert the following file formats:
 ```
 -----------------------------------------
 .css .sass .html .htm .js .jsm .mjs .json
@@ -232,20 +230,28 @@ It accomplishes this by reading these file types in plain text mode, and then co
 If you feel like compiling your own executables, you can theoretically do so with any compatible CPython compilers. Though the official releases were compiled with Nuitka, this section will provides instructions for Nuitka and PyInstaller.
 
 ### With Nuitka
-#### Windows
-**Prerequisites**
+#### Prerequisites
 * Nuitka >= `1.3.6`
 * Python >= `3.10`
+* Pip packages (Nuitka): `ordered-set`, `zstandard`
+* Pip packages (Texter): `pypandoc`, `pdfminer.six`
 
-**Nuitka requirements:**
+**Windows:**
 * MSVC v143 - VS2022 C++ x64/x86 build tools (Latest)
 * Windows 11 SDK
 * Windows Universal C Runtime
 * C++ Build Tools core features
 
-**Note:** Python must be installed from the **official website** and not the Windows app store. Please refer to the [Nuitka User Manual](https://nuitka.net/doc/user-manual.html)
+**Note:** Python must **not** be installed from the Windows app store.
 
-**Instructions**
+**(Arch) Linux**
+* `gcc`
+* `patchelf`
+* `ccache`
+
+Please refer to the [Nuitka User Manual](https://nuitka.net/doc/user-manual.html) for more information
+
+#### Instructions
 **Clone the repository**
 Simply download the latest `source.zip` and extract the contents. Alternatively, if you have `git` installed, use the following command:
 ``` shell
@@ -265,10 +271,10 @@ python -m nuitka --standalone --onefile --remove-output --product-name=SearTxT -
 ```
 
 **Example:**
-```
-python -m nuitka --standalone --onefile --include-module=charset_normalizer --remove-output --product-name=SearTxT --file-version=1.0 SearTxT.py
+``` shell
+python -m nuitka --standalone --onefile --remove-output --product-name=SearTxT --file-version=1.0 SearTxT.py
 ```
 
-If you have correctly configured everything, Nuitka should produce a `SearTxT.exe` executable within the same directory.
+If you have correctly configured everything, Nuitka should produce an executable within the same directory (`SearTxT.exe` on Windows, `SearTxT.bin` on Linux)
 
 **Note:** Some anti-virus programs (e.g. BitDefender) may falsely flag the newly-produced `.exe` as a virus and then remove it. To avoid this, you can either add the source directory as an exception, or completely disable the anti-virus program (not recommended)
