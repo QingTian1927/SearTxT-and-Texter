@@ -284,6 +284,7 @@ If you have correctly configured everything, Nuitka should produce an executable
 
 ## Known Issues
 ### General
+#### Repeated arguments
 When there are several repeated arguments, commands that accept multiple arguments (e.g. `/ls`) will only use the latest parameter in the series:
 ```
 [SearTxT ~example]$ /ls 2 3 -s -a
@@ -295,6 +296,7 @@ Discovered by Master Harry Dreamer
 
 **Solution:** just don't repeat the same arguments. I won't fix this issue in the forseeable future because I simply don't think it is enough of a problem yet. I may *eventually* fix it though.
 
+#### False positives
 Some anti-virus providers may falsely flag the SearTxT & Texter executables as viruses and then quarantining them.
 
 **Solution:** add an exception to the anti-virus program or disable it completely (not recommended)
