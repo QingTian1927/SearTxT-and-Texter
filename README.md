@@ -7,7 +7,7 @@
 4. [Usage](#usage)
 5. [Quickstart](#quickstart)
 6. [Conversion](#conversion)
-7. Building From Source
+7. [Building From Source](#building-from-source)
 8. Known Issues
 9. Acknowledgements
 
@@ -171,7 +171,7 @@ To check whether you have entered the correct path, use the `/ls` command to che
 Since SearTxT can only search for strings in `.txt` files, you will have to run Texter first to convert other file formats (e.g. `.docx`, `.pdf`, `.doc`, etc.) into `.txt`.
 
 #### Download and install pandoc
-Simply launch Texter and use the `/pd` command. Alternative, you can also download and install pandoc manually, but make sure you add the installation directory to your `PATH`.
+Simply launch Texter and use the `/pd` command. Alternatively, you can also download and install pandoc manually, but make sure you add the installation directory to your `PATH`.
 
 #### Start the conversion
 If you have correctly set up and moved your files inside the target directory, simply start the conversion by using the `/cv` command.
@@ -210,3 +210,63 @@ Simply type in virtually any string of characters and then hit `ENTER`.
 
 #### Check the results
 If SearTxT finds any matches, it will print out the results on the screen. Simply use your mouse to scroll through the result list.
+
+## Conversion
+As of version `1.0`. Texter officially supports `.docx` and `.pdf` files. However, conversion from `.pdf` to plain text, especially from files with a large number of non-latin characters, can be rather unreliable as it can break the formatting of the original documents.
+
+Unofficially, Texter by default can also try to convert the following file formats:
+```
+-----------------------------------------
+.css .sass .html .htm .js .jsm .mjs .json
+.markdown .md .mkd .org
+.v .asc .log .conf
+.doc
+.py .py3 .pyi .pyx .py3x .wsgi
+.rs .vbs .lua .p .pas .kt .java
+.c .C .cs .c++ .cc .cpp .cxx
+.lisp .go .hs
+-----------------------------------------
+```
+It accomplishes this by reading these file types in plain text mode, and then copying the entire content to a separate `.txt` file (very ingenious, ikr). If you want additional file formats, simply add them to `unsupported_types.conf`
+
+## Building From Source
+If you feel like compiling your own executables, you can theoretically do so with any compatible `CPython` compilers. Though the official releases were compiled with Nuitka, this section will provides instructions for Nuitka and PyInstaller.
+
+### With Nuitka
+#### Windows
+##### Prerequisites
+* Nuitka: `>= 1.3.6`
+* Python: `>= 3.10`
+
+**Nuitka requirements:**
+* MSVC v143 - VS2022 C++ x64/x86 build tools (Latest)
+* Windows 11 SDK
+* Windows Universal C Runtime
+* C++ Build Tools core features
+
+**Note:** Python must be installed from the **official website** and not the Windows app store. Please refer to the [Nuitka User Manual](https://nuitka.net/doc/user-manual.html)
+
+##### Instructions
+**Clone the repository:**
+Simply download the latest `source.zip` and extract the contents. Alternatively, if you have `git` installed, use the following command:
+``` shell
+git clone https://github.com/QingTian1927/SearTxT-and-Texter
+```
+
+**Install Nuitka:**
+``` shell
+python -m pip install nuitka
+```
+
+**Building SearTxT:**
+Open the extracted `source` directory in the command-line and run:
+``` shell
+python -m nuitka --standalone --onefile --remove-output --product-name=SearTxT --file-version=<version> <file_name>
+
+Example:
+python -m nuitka --standalone --onefile --include-module=charset_normalizer --remove-output --product-name=SearTxT --file-version=1.0 SearTxT.py
+```
+
+If you have correctly configured everything, Nuitka should produce a `SearTxT.exe` executable within the same directory.
+
+**Note:** Some anti-virus programs (e.g. BitDefender) may falsely flag the newly-produced `.exe` as a virus and then remove it. To avoid this, you can either add the source directory as an exception, or completely disable the anti-virus program (not recommended)
