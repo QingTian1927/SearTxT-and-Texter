@@ -289,8 +289,7 @@ If you have correctly configured everything, Nuitka should produce an executable
 **Note:** Some anti-virus programs (e.g. BitDefender) may falsely flag the newly-produced `.exe` as a virus and then remove it. To avoid this, you can either add the source directory as an exception, or completely disable the anti-virus program (not recommended)
 
 ## Known Issues
-### General
-#### Repeated arguments
+### Repeated arguments
 When there are several repeated arguments, commands that accept multiple arguments (e.g. `/ls`) will only use the latest parameter in the series:
 ```
 [SearTxT ~example]$ /ls 2 3 -s -a
@@ -302,7 +301,7 @@ Discovered by Master Harry Dreamer
 
 **Solution:** just don't repeat the same arguments. I won't fix this issue in the forseeable future because I simply don't think it is enough of a problem yet. I may *eventually* fix it though.
 
-#### False positives
+### False positives
 Some anti-virus providers may falsely flag the SearTxT & Texter executables as viruses and then quarantining them.
 
 **Solution:** add an exception to the anti-virus program or disable it completely (not recommended)
