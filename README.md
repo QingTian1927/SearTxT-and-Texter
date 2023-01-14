@@ -3,7 +3,7 @@ These are the improved versions of my original Python Text Searcher, which was u
 
 * **SearTxT** is a simple command-line tool to search for virtually any string of text contained within `.txt` files in a user-specified directory.
 
-* **Texter** is a complementary file converter that can convert `.docx` , `.pdf` as well as several other file formats into `.txt` for use with SearTxT.
+* **Texter** is a complementary file converter that can convert `.docx`, `.pdf` as well as several other file formats into `.txt` for use with SearTxT.
 
 I wrote these programs mainly to learn the basics of Python (and also for fun), so don't expect the same level of polish and utility that may come with tools such as `fzf` or `grep`. With that said though, I still hope that you would find SearTxT & Texter to be useful somehow.
 
@@ -36,7 +36,7 @@ Simply download the latest [release](https://github.com/QingTian1927/SearTxT-and
 **Note:** Some anti-virus programs may falsely flag the executable as a virus and then quarantine it. To avoid this, you can either add the SearTxT directory as an exception, or completely disable the anti-virus software (not recommended)
 
 ### Texter-specific Requirements:
-Texter can only convert `.docx` files with the `pandoc` runtime installed, so make sure you download it using the `/pd` command prior to starting the conversion process. 
+Texter can only convert `.docx` files with the `pandoc` runtime installed, so make sure you download it using the `/pd` command before starting the conversion process. 
 
 **Note:** Should the `/pd` command fails for any reason, you can download pandoc directly from the [official website](https://pandoc.org/installing.html) and install it manually.
 
@@ -87,12 +87,13 @@ Examples : /ls
 #### Change the target directory:
 ```
 /ap <absolute path>
-``` 
-or 
 ```
-/cd <relative path>
-``` 
-(in relation to the script directory)
+or
+```
+/cd <relative path>  # (in relation to the script directory)
+
+/cd ~                # To quickly change to the script folder
+```
 
 #### List the content of a directory:
 ```
@@ -168,7 +169,7 @@ Script directory: /home/DBVG/SearTxT
 [Texter /home/DBVG/Documents/DOCX Stuff]$ _
 ```
 
-To check whether you have entered the correct path, use the `/ls` command to check the content of target directory.
+To check whether you have entered the correct path, use the `/ls` command to check the content of the target directory.
 
 **Note:** The `~` symbol indicates that the current target directory is inside the script directory, hence a relative path.
 
@@ -217,7 +218,7 @@ Simply type in virtually any string of characters and then hit `ENTER`.
 If SearTxT finds any matches, it will print out the results on the screen. Simply use your mouse to scroll through the result list.
 
 ## Conversion
-As of version `1.0`. Texter officially supports `.docx` and `.pdf` files. However, conversion from `.pdf` to plain text, especially from files with a large number of non-latin characters, can be rather unreliable as it can break the formatting of the original documents.
+As of version `1.0`. Texter officially supports `.docx` and `.pdf` files. However, conversion from `.pdf` to plain text, especially from files with a large number of non-Latin characters, can be rather unreliable as it can break the formatting of the original documents.
 
 Unofficially, Texter by default can also *try to* convert the following file formats:
 ```
@@ -232,10 +233,10 @@ Unofficially, Texter by default can also *try to* convert the following file for
 .lisp .go .hs
 -----------------------------------------
 ```
-It accomplishes this by reading these file types in plain text mode, and then copying the entire content to a separate `.txt` file (very ingenious, ikr). If you want additional file formats, simply add them to `unsupported_types.conf`
+It accomplishes this by reading these files in plain text mode, and then copying the entire content to a separate `.txt` file (very *ingenious*, ikr). If you want additional file formats, simply add them to `unsupported_types.conf`
 
 ## Building From Source
-If you feel like compiling your own executables, you can theoretically do so with any compatible CPython compilers. Though the official releases were compiled with Nuitka, this section will provides instructions for Nuitka and PyInstaller.
+If you feel like compiling your own executables, you can theoretically do so with any compatible CPython compilers. Though the official releases were compiled with Nuitka, this section will provide instructions for Nuitka and PyInstaller.
 
 ### With Nuitka
 #### Prerequisites
@@ -274,7 +275,7 @@ python -m pip install nuitka
 
 **Building SearTxT**
 
-Open the extracted `source` directory in the command-line and run:
+Open the extracted `source` directory in the command line and run:
 ``` shell
 python -m nuitka --standalone --onefile --remove-output --product-name=SearTxT --file-version=<version> <file_name>
 ```
@@ -289,8 +290,8 @@ If you have correctly configured everything, Nuitka should produce an executable
 **Note:** Some anti-virus programs (e.g. BitDefender) may falsely flag the newly-produced `.exe` as a virus and then remove it. To avoid this, you can either add the source directory as an exception, or completely disable the anti-virus program (not recommended)
 
 ## Known Issues
-### Repeated arguments
-When there are several repeated arguments, commands that accept multiple arguments (e.g. `/ls`) will only use the latest parameter in the series:
+### Repeating arguments
+When there are several parameters for an argument, commands that accept multiple arguments (e.g. `/ls`) will only use the latest parameter in the series:
 ```
 [SearTxT ~example]$ /ls 2 3 -s -a
 file1.txt  file2.txt  file3.txt
@@ -299,9 +300,9 @@ file7.txt  ...        ...
 ```
 Discovered by Master Harry Dreamer
 
-**Solution:** just don't repeat the same arguments. I won't fix this issue in the forseeable future because I simply don't think it is enough of a problem yet. I may *eventually* fix it though.
+**Solution:** just don't repeat the same arguments. I won't fix this issue in the foreseeable future because I simply don't think it is enough of a problem yet. I may *eventually* fix it though.
 
 ### False positives
-Some anti-virus providers may falsely flag the SearTxT & Texter executables as viruses and then quarantining them.
+Some anti-virus providers may falsely flag the SearTxT & Texter executables as viruses and then quarantine them.
 
 **Solution:** add an exception to the anti-virus program or disable it completely (not recommended)
