@@ -1,5 +1,4 @@
 # SearTxT & Texter
-
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Features](#features)
@@ -230,13 +229,13 @@ Unofficially, Texter by default can also try to convert the following file forma
 It accomplishes this by reading these file types in plain text mode, and then copying the entire content to a separate `.txt` file (very ingenious, ikr). If you want additional file formats, simply add them to `unsupported_types.conf`
 
 ## Building From Source
-If you feel like compiling your own executables, you can theoretically do so with any compatible `CPython` compilers. Though the official releases were compiled with Nuitka, this section will provides instructions for Nuitka and PyInstaller.
+If you feel like compiling your own executables, you can theoretically do so with any compatible CPython compilers. Though the official releases were compiled with Nuitka, this section will provides instructions for Nuitka and PyInstaller.
 
 ### With Nuitka
 #### Windows
-##### Prerequisites
-* Nuitka: `>= 1.3.6`
-* Python: `>= 3.10`
+**Prerequisites**
+* Nuitka >= `1.3.6`
+* Python >= `3.10`
 
 **Nuitka requirements:**
 * MSVC v143 - VS2022 C++ x64/x86 build tools (Latest)
@@ -246,24 +245,25 @@ If you feel like compiling your own executables, you can theoretically do so wit
 
 **Note:** Python must be installed from the **official website** and not the Windows app store. Please refer to the [Nuitka User Manual](https://nuitka.net/doc/user-manual.html)
 
-##### Instructions
-**Clone the repository:**
+**Instructions**
+**Clone the repository**
 Simply download the latest `source.zip` and extract the contents. Alternatively, if you have `git` installed, use the following command:
 ``` shell
 git clone https://github.com/QingTian1927/SearTxT-and-Texter
 ```
 
-**Install Nuitka:**
+**Install Nuitka**
 ``` shell
 python -m pip install nuitka
 ```
 
-**Building SearTxT:**
+**Building SearTxT**
 Open the extracted `source` directory in the command-line and run:
 ``` shell
 python -m nuitka --standalone --onefile --remove-output --product-name=SearTxT --file-version=<version> <file_name>
-
-Example:
+```
+**Example:**
+```
 python -m nuitka --standalone --onefile --include-module=charset_normalizer --remove-output --product-name=SearTxT --file-version=1.0 SearTxT.py
 ```
 
