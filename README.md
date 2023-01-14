@@ -14,8 +14,8 @@ I wrote these programs mainly to learn the basics of Python (and also for fun), 
 1. [Quickstart](#quickstart)
 1. [Conversion](#conversion)
 1. [Building From Source](#building-from-source)
-1. Known Issues
-1. Acknowledgements
+1. [Known Issues](#known-issues)
+1. [Acknowledgements](#acknowledgements)
 
 ## Features
 * 8 times the performance improvement :0
@@ -26,6 +26,8 @@ I wrote these programs mainly to learn the basics of Python (and also for fun), 
 
 ## Installation
 Simply download the latest [release](https://github.com/QingTian1927/SearTxT-and-Texter/releases), extract the content of the `.zip` archive, and launch SearTxT or Texter with the appropriate executable.
+
+**Note:** Some anti-virus programs may falsely flag the executable as a virus and then quarantine it. To avoid this, you can either add the SearTxT directory as an exception, or completely disable the anti-virus software (not recommended)
 
 ### Texter-specific Requirements:
 Texter can only convert `.docx` files with the `pandoc` runtime installed, so make sure you download it using the `/pd` command prior to starting the conversion process. 
@@ -168,7 +170,7 @@ To check whether you have entered the correct path, use the `/ls` command to che
 Since SearTxT can only search for strings in `.txt` files, you will have to run Texter first to convert other file formats (e.g. `.docx`) into `.txt`.
 
 #### Download and install pandoc
-Simply launch Texter and use the `/pd` command. Alternatively, you can also download and install pandoc manually, but make sure you add the installation directory to your `PATH`.
+Simply launch Texter and run the `/pd` command. Alternatively, you can also download and install pandoc manually, but make sure you add the installation directory to your `PATH`.
 
 #### Start the conversion
 If you have correctly set up and moved your files inside the target directory, simply start the conversion by using the `/cv` command.
@@ -279,3 +281,27 @@ python -m nuitka --standalone --onefile --remove-output --product-name=SearTxT -
 If you have correctly configured everything, Nuitka should produce an executable within the same directory (`SearTxT.exe` on Windows, `SearTxT.bin` on Linux)
 
 **Note:** Some anti-virus programs (e.g. BitDefender) may falsely flag the newly-produced `.exe` as a virus and then remove it. To avoid this, you can either add the source directory as an exception, or completely disable the anti-virus program (not recommended)
+
+## Known Issues
+### General
+* When there are several repeated arguments, commands that accept multiple arguments (e.g. `/ls`) will only use the latest parameter in the series:
+```
+[SearTxT ~example]$ /ls 2 3 -s -a
+file1.txt  file2.txt  file3.txt
+file4.txt  file5.txt  file6.txt
+file7.txt  ...        ...
+```
+Discovered by Master Harry Dreamer
+
+**Solution:** just don't repeat the same arguments. I won't fix this issue in the forseeable future because I simply don't think it is enough of a problem yet. I may *eventually* fix it though.
+
+* Some anti-virus providers may falsely flag the SearTxT & Texter executables as viruses and then quarantining them.
+
+**Solution:** add an exception to the anti-virus program or disable it completely (not recommended)
+
+## Acknowledgements
+These wonderful people have provided invaluable help and support in the creation of SearTxT & Texter:
+
+* **Master Harry Dreamer:** testing & bug reporting
+* **Master Eltidee:** testing
+* **OBP Corp:** listening to my perpetual ramblings about the benefits of Free and Open Source Software
