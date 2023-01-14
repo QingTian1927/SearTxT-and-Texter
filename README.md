@@ -7,6 +7,13 @@ These are the improved versions of my original Python Text Searcher, which was u
 
 I wrote these programs mainly to learn the basics of Python (and also for fun), so don't expect the same level of polish and utility that may come with tools such as `fzf` or `grep`. With that said though, I still hope that you would find SearTxT & Texter to be useful somehow.
 
+## With Special Thanks To
+These wonderful people have provided invaluable help and support in the creation of SearTxT & Texter:
+
+* **Master Harry Dreamer:** testing & bug reporting
+* **Master Eltidee:** testing
+* **OBP Corp:** listening to my perpetual ramblings about the benefits of Free and Open Source Software
+
 ## Table of Contents
 1. [Features](#features)
 1. [Installation](#installation)
@@ -15,7 +22,6 @@ I wrote these programs mainly to learn the basics of Python (and also for fun), 
 1. [Conversion](#conversion)
 1. [Building From Source](#building-from-source)
 1. [Known Issues](#known-issues)
-1. [Acknowledgements](#acknowledgements)
 
 ## Features
 * 8 times the performance improvement :0
@@ -300,10 +306,3 @@ Discovered by Master Harry Dreamer
 Some anti-virus providers may falsely flag the SearTxT & Texter executables as viruses and then quarantining them.
 
 **Solution:** add an exception to the anti-virus program or disable it completely (not recommended)
-
-## Acknowledgements
-These wonderful people have provided invaluable help and support in the creation of SearTxT & Texter:
-
-* **Master Harry Dreamer:** testing & bug reporting
-* **Master Eltidee:** testing
-* **OBP Corp:** listening to my perpetual ramblings about the benefits of Free and Open Source Software
