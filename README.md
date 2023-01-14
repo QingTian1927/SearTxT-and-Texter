@@ -5,7 +5,7 @@ These are the improved versions of my original Python Text Searcher, which was u
 
 * **Texter** is a complementary file converter that can convert `.docx` , `.pdf` as well as several other file formats into `.txt` for use with SearTxT.
 
-I wrote these programs just for fun, so don't expect the same level of polish and utility that may come with tools such as `fzf` or `grep`. With that said though, I still hope that you would find SearTxT & Texter to be useful somehow.
+I wrote these programs mainly to learn the basics of Python (and also for fun), so don't expect the same level of polish and utility that may come with tools such as `fzf` or `grep`. With that said though, I still hope that you would find SearTxT & Texter to be useful somehow.
 
 ## Table of Contents
 1. [Features](#features)
@@ -25,7 +25,7 @@ I wrote these programs just for fun, so don't expect the same level of polish an
 * And many more (probably...)
 
 ## Installation
-Simply download the latest release, extract the content of the `.zip` archive, and launch SearTxT or Texter with the appropriate executable.
+Simply download the latest [release](https://github.com/QingTian1927/SearTxT-and-Texter/releases), extract the content of the `.zip` archive, and launch SearTxT or Texter with the appropriate executable.
 
 ### Texter-specific Requirements:
 Texter can only convert `.docx` files with the `pandoc` runtime installed, so make sure you download it using the `/pd` command prior to starting the conversion process. 
@@ -244,15 +244,16 @@ If you feel like compiling your own executables, you can theoretically do so wit
 
 **Note:** Python must **not** be installed from the Windows app store.
 
-**(Arch) Linux**
+**(Arch) Linux:**
 * `gcc`
 * `patchelf`
 * `ccache`
 
-Please refer to the [Nuitka User Manual](https://nuitka.net/doc/user-manual.html) for more information
+Please refer to the [Nuitka User Manual](https://nuitka.net/doc/user-manual.html) for more information.
 
 #### Instructions
 **Clone the repository**
+
 Simply download the latest `source.zip` and extract the contents. Alternatively, if you have `git` installed, use the following command:
 ``` shell
 git clone https://github.com/QingTian1927/SearTxT-and-Texter
