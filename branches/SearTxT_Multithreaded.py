@@ -1,5 +1,5 @@
 # ------------------------------------- #
-# DBVG SearTxT                          #
+# DBVG SearTxT (Multi-threaded)         #
 # Still very much bloated though.       #
 # Written and tested with Python 3.10.8 #
 # ------------------------------------- #
@@ -269,10 +269,10 @@ if __name__ == '__main__':
             if os.path.exists(os.path.join(SCRIPT_DIR, tail_dir)) and target_dir != SCRIPT_DIR:
                 prompt_dir = f"~{tail_dir}"
             elif target_dir == SCRIPT_DIR:
-                prompt_dir = f"~"
+                prompt_dir = "~"
             else:
                 prompt_dir = target_dir
-            user_input = input(f"{Colors.CYAN}[SearTxT {prompt_dir}]${Colors.RESET} ")
+            user_input = input(f"{Colors.CYAN}[SearTxT {prompt_dir}]#{Colors.RESET} ")
 
             if user_input == '/c':
                 refresh_display(SCRIPT_DIR, search_method, notifications)
