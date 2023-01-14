@@ -94,7 +94,7 @@ or
 ``` 
 (default: target dir, 3 columns)
 
-#### Configure the number of cpus used for the multithreaded processes:
+#### Configure the number of CPUs used for the multithreaded processes:
 ```
 /t (threads: num ; -a / --all ; -h / --half ; -q / --quarter)
 ``` 
@@ -167,7 +167,7 @@ To check whether you have entered the correct path, use the `/ls` command to che
 **Note:** The `~` symbol indicates that the current target directory is inside the script directory, hence a relative path.
 
 ### Texter Quickstart Guide
-Since SearTxT can only search for strings in `.txt` files, you will have to run Texter first to convert other file formats (e.g. `.docx`, `.pdf`, `.doc`, etc.) into `.txt`.
+Since SearTxT can only search for strings in `.txt` files, you will have to run Texter first to convert other file formats (e.g. `.docx`) into `.txt`.
 
 #### Download and install pandoc
 Simply launch Texter and use the `/pd` command. Alternatively, you can also download and install pandoc manually, but make sure you add the installation directory to your `PATH`.
@@ -258,10 +258,12 @@ python -m pip install nuitka
 ```
 
 **Building SearTxT**
+
 Open the extracted `source` directory in the command-line and run:
 ``` shell
 python -m nuitka --standalone --onefile --remove-output --product-name=SearTxT --file-version=<version> <file_name>
 ```
+
 **Example:**
 ```
 python -m nuitka --standalone --onefile --include-module=charset_normalizer --remove-output --product-name=SearTxT --file-version=1.0 SearTxT.py
