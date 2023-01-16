@@ -1,11 +1,15 @@
 # ------------------------------------- #
 # DBVG SearTxT (Single-threaded)        #
+# Still very much bloated though.       #
 # Written and tested with Python 3.10.8 #
 # ------------------------------------- #
 
 import os
 import sys
-import difflib
+
+from difflib import get_close_matches
+from difflib import SequenceMatcher
+
 from time import perf_counter
 from datetime import datetime
 from traceback import format_exc
@@ -20,6 +24,7 @@ else:
 VERSION = 1.0
 notifications = ''
 custom_column_num = 0
+approx_score = 0.85
 softwaring = True
 searching = False
 
@@ -38,10 +43,11 @@ COMMANDS = [
     '/ap <absolute path> : change the search directory to a folder outside the script directory',
     '/cd <relative path> : change the search directory to a folder inside the script directory',
     '/ls (column) (dir)  : list all items in the specified directory',
-    '/mt <method>        : change to either approximate or exact searching method',
+    '/mt (method)        : change to either approximate or exact searching method',
     '/c                  : refresh the display',
     '/h                  : print out all available commands',
-    '/q                  : exit the program\n'
+    '/q                  : exit the program\n',
+    '/s (score)          : set the minimum score of the approximate searcher results'
 ]
 
 
@@ -91,7 +97,7 @@ def refresh_display():
     else:
         os.system('cls')
 
-    print(f"{Colors.CYAN}***** DBVG SearTxT ver {VERSION}{Colors.RESET}")
+    print(f"{Colors.CYAN}***** DBVG SearTxT ver {VERSION} *****{Colors.RESET}")
     print(f"Script directory: {Colors.CYAN}{SCRIPT_DIR}{Colors.RESET}")
 
     if search_method == "exact_match":
@@ -154,14 +160,14 @@ def list_directory(display_columns=2, directory=target_dir):
 # Search the file by enumerating through its content line by line
 # and check for potential matches using the difflib library
 # Only return results that have a confidence score higher than 0.75 (reasonably good enough)
-def approximate_searcher(file_name):
+def approximate_searcher(file_name, cutoff):
     found = 0
     file_dir = os.path.join(target_dir, file_name)
     with open(file_dir, 'r', encoding='utf8') as searched_file:
         for index, line in enumerate(searched_file, start=1):
-            match = difflib.get_close_matches(user_input.lower(), line.lower().split(), 1, 0.75)
+            match = get_close_matches(user_input.lower(), line.lower().split(), 1, float(cutoff))
             if match:
-                score = difflib.SequenceMatcher(None, user_input, match[0]).ratio()
+                score = SequenceMatcher(None, user_input, match[0]).ratio()
                 print(f"{Colors.YELLOW}@@{Colors.RESET} 1 potential match at {Colors.BLUE} Line({index})"
                       f"{Colors.RESET} of {Colors.BLUE}{file_name}{Colors.RESET}")
                 print(f"{Colors.YELLOW}||{Colors.RESET} {line.strip()}")
@@ -198,10 +204,12 @@ if __name__ == '__main__':
             # ->  ~example
             notifications = ''
             tail_dir = os.path.split(target_dir)[1]
-            if os.path.exists(os.path.join(SCRIPT_DIR, tail_dir)):
+            if os.path.exists(os.path.join(SCRIPT_DIR, tail_dir)) and target_dir != SCRIPT_DIR:
                 prompt_dir = f"~{tail_dir}"
+            elif target_dir == SCRIPT_DIR:
+                prompt_dir = "~"
             else:
-                prompt_dir = f"{target_dir}"
+                prompt_dir = target_dir
             user_input = input(f"{Colors.CYAN}[SearTxT {prompt_dir}]%{Colors.RESET} ")
 
             if user_input == '/c':
@@ -265,6 +273,20 @@ if __name__ == '__main__':
                     refresh_display()
                 else:
                     print(f"{Colors.RED}[ERROR]{Colors.RESET} Invalid argument for /mt <method>")
+            elif user_input.startswith('/s'):
+                user_input = user_input.lstrip('/s').strip()
+                try:
+                    if 0 <= float(user_input) <= 1:
+                        approx_score = user_input
+                        print(f"Set the approximate searcher confidence score to {approx_score}")
+                    else:
+                        print(f"{Colors.RED}[ERROR]{Colors.RESET} /s (score) must be between 0 and 1")
+                except ValueError:
+                    if user_input == '':
+                        approx_score = 0.85
+                        print(f"Set the approximate searcher confidence score to {approx_score}")
+                    else:
+                        print(f"{Colors.RED}[ERROR]{Colors.RESET} Invalid parameter for /ls (score)")
             elif user_input == '/q':
                 softwaring = False
             elif user_input == '/h':
@@ -285,7 +307,7 @@ if __name__ == '__main__':
                         if search_method == "exact_match":
                             result_counter += exact_searcher(file)
                         elif search_method == "proximity_match":
-                            result_counter += approximate_searcher(file)
+                            result_counter += approximate_searcher(file, approx_score)
 
                 end_time = perf_counter()
                 print(f"\n{Colors.CYAN}$${Colors.RESET} Found {Colors.CYAN}{result_counter}{Colors.RESET} results")
@@ -296,10 +318,10 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print("\nInterrupt signal received")
     except Exception as err:
-        LOGGING_DIR = os.path.join(CONFIG_DIR, 'log.txt')
+        LOGGING_DIR = os.path.join(CONFIG_DIR, 'seartxt_log.txt')
         with open(LOGGING_DIR, 'a', encoding='utf8') as log_file:
-            log_file.write(f"###SESSION: {datetime.now()}##############################\n")
-            log_file.write('-' * len(f"###SESSION: {datetime.now()}##############################") + "\n")
+            log_file.write(f"###SESSION: {datetime.now()}{'#' * 40}\n")
+            log_file.write('-' * len(f"###SESSION: {datetime.now()}{'#' * 40}") + "\n")
             log_file.write(f"{format_exc()}\n")
         print("\n------------------------------------------")
         print(f"{Colors.RED}[ERROR]{Colors.RESET} Program terminated by script error")
