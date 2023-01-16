@@ -21,6 +21,7 @@ These wonderful people have provided invaluable help and support in the creation
 1. [Quickstart](#quickstart)
 1. [Conversion](#conversion)
 1. [Building From Source](#building-from-source)
+1. [Differences Between the Branches](#differences-between-the-branches)
 1. [Known Issues](#known-issues)
 
 ## Features
@@ -41,7 +42,7 @@ Texter can only convert `.docx` files with the `pandoc` runtime installed, so ma
 **Note:** Should the `/pd` command fails for any reason, you can download pandoc directly from the [official website](https://pandoc.org/installing.html) and install it manually.
 
 ### Running From Source
-Should you want to run SearTxT or Texter directly with the Python Interpreter, make sure that your system satisfies the following prerequisites:  
+If you want to run SearTxT or Texter directly with the Python Interpreter, make sure that your system satisfies the following requirements:  
 
 * Python >= `3.10.8`
 * Pip packages (Texter): `pypandoc`, `pdfminer.six`
@@ -51,7 +52,7 @@ Simply download Python from your package manager of choice, e.g.:
 
 **APT**
 ``` shell
-sudo apt-get install python
+sudo apt install python-is-python3
 ```
 
 **Pacman**
@@ -61,16 +62,19 @@ sudo pacman -S python
 
 #### Windows
 You can either download Python from the [official website](https://www.python.org/downloads/) or install it with a package manager such as [scoop](https://scoop.sh/):
-
 ``` shell
 scoop install python
 ```
 
 #### Pip
 Once you have installed Python and added the installation directory to your `PATH`, download the required packages with:
-
 ``` shell
 python -m pip install pypandoc pdfminer.six
+```
+
+You may also have to upgrade pip first:
+``` shell
+python -m pip install --upgrade pip
 ```
 
 ## Usage
@@ -97,11 +101,11 @@ or
 
 #### List the content of a directory:
 ```
-/ls (column: num) (dir: -s / --script ; -t / --target)
+/ls (column: num > 0) (dir: -s / --script ; -t / --target)
 ``` 
 (default: target dir, 3 columns)
 
-#### Configure the number of CPUs used for the multithreaded processes:
+#### Configure the number of CPUs used for the multi-threaded processes:
 ```
 /t (threads: num ; -a / --all ; -h / --half ; -q / --quarter)
 ``` 
@@ -122,6 +126,12 @@ or
 /mt (method: -e / --exact ; -p / --proximity)
 ``` 
 (default: exact match)
+
+#### Change the minimum confidence score for approximate matches:
+```
+/s (score: 0 < float < 1)
+```
+(default: 0.85)
 
 ### Texter Commands
 #### Start the conversion process:
@@ -212,7 +222,7 @@ or
 #### Start searching
 Simply type in virtually any string of characters and then hit `ENTER`.
 
-**Note:** The search query cannot start with the `/` character, as this is an identifier for commands. If your search query starts with `/`, SearTxT will throw an error message.
+**Note:** The search query cannot start with the `/` character. If your search query starts with `/`, SearTxT will throw an error message.
 
 #### Check the results
 If SearTxT finds any matches, it will print out the results on the screen. Simply use your mouse to scroll through the result list.
@@ -238,6 +248,8 @@ It accomplishes this by reading these files in plain text mode, and then copying
 ## Building From Source
 If you feel like compiling your own executables, you can theoretically do so with any compatible CPython compilers. Though the official releases were compiled with Nuitka, this section will provide instructions for Nuitka and PyInstaller.
 
+**Note:** I don't recommend building SearTxT or running the SearTxT binary on a Linux system due to potential memory leaks and just being very buggy in general.
+
 ### With Nuitka
 #### Prerequisites
 * Nuitka >= `1.3.6`
@@ -248,10 +260,8 @@ If you feel like compiling your own executables, you can theoretically do so wit
 **Windows:**
 * MSVC v143 - VS2022 C++ x64/x86 build tools (Latest)
 * Windows 11 SDK
-* Windows Universal C Runtime
-* C++ Build Tools core features
 
-**Note:** Python must **not** be installed from the Windows app store.
+**Note:** Python must **NOT** be installed from the Windows app store.
 
 **(Arch) Linux:**
 * `gcc`
@@ -263,7 +273,7 @@ Please refer to the [Nuitka User Manual](https://nuitka.net/doc/user-manual.html
 #### Instructions
 **Clone the repository**
 
-Simply download the latest `source.zip` and extract the contents. Alternatively, if you have `git` installed, use the following command:
+Simply download the latest `Source code` archive and extract the contents. Alternatively, if you have `git` installed, use the following command:
 ``` shell
 git clone https://github.com/QingTian1927/SearTxT-and-Texter
 ```
@@ -275,19 +285,32 @@ python -m pip install nuitka
 
 **Building SearTxT**
 
-Open the extracted `source` directory in the command line and run:
+Open the extracted `Source code` directory in the command line and run:
 ``` shell
-python -m nuitka --standalone --onefile --remove-output --product-name=SearTxT --file-version=<version> <file_name>
+python -m nuitka --standalone --onefile --remove-output --windows-icon-from-ico=<icon_path> <source_file>
 ```
 
-**Example:**
+**Example (Windows):**
 ``` shell
-python -m nuitka --standalone --onefile --remove-output --product-name=SearTxT --file-version=1.0 SearTxT.py
+python -m nuitka --standalone --onefile --remove-output --windows-icon-from-ico=assets/floppy.ico .\SearTxT.py
 ```
 
 If you have correctly configured everything, Nuitka should produce an executable within the same directory (`SearTxT.exe` on Windows, `SearTxT.bin` on Linux)
 
-**Note:** Some anti-virus programs (e.g. BitDefender) may falsely flag the newly-produced `.exe` as a virus and then remove it. To avoid this, you can either add the source directory as an exception, or completely disable the anti-virus program (not recommended)
+## Differences Between the Branches
+### Mix-threaded 
+In this branch, the `exact searcher` is single-threaded, whereas the `approximate searcher` is multi-threaded.
+
+During my testing, I noticed that the exact searcher performs significantly better single-threaded than multi-threaded when the search database is relatively small (~ 0.01807s vs. 0.02647). 
+
+However, this doesn't scale well at all with large databases, and using the exact searcher becomes rather tedious when it has to go through hundreds of files at once (took roughly 2s to return 220 results from a set of 81 files)
+
+### Single-threaded
+In this branch, both the `exact searcher` and the `approximate searcher` are single-threaded.
+
+This helps to reduce the size of the executable as well as the amount of memory that is used. However, the searchers perform *very* poorly and the searching process becomes *very* tedious.
+
+I don't really recommend using this branch for production purposes as it is maintained with minimal effort.
 
 ## Known Issues
 ### Repeating arguments
