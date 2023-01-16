@@ -301,7 +301,7 @@ If you have correctly configured everything, Nuitka should produce an executable
 ### Mix-threaded 
 In this branch, the `exact searcher` is single-threaded, whereas the `approximate searcher` is multi-threaded.
 
-During my testing, I noticed that the exact searcher performs significantly better single-threaded than multi-threaded when the search database is relatively small (~ 0.01807s vs. 0.02647). 
+During my testing, I noticed that the exact searcher performs significantly better single-threaded than multi-threaded when the search database is relatively small (~ `0.01807s` vs. `0.02647s`). 
 
 However, this doesn't scale well at all with large databases, and using the exact searcher becomes rather tedious when it has to go through hundreds of files at once (took roughly 2s to return 220 results from a set of 81 files)
 
