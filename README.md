@@ -96,7 +96,15 @@ or
 ```
 /cd <relative path>  # (in relation to the script directory)
 
-/cd ~                # To quickly change to the script folder
+/cd ~ or just /cd    # To quickly change to the script folder
+
+/cd ..               # To go up a directory
+
+/cd ../../..         # To go up a number of directories
+    ..\..\..         (Windows)
+
+/cd ../example       # To go up a number of directories and enter the specified directory
+    ..\example       (Windows)
 ```
 
 #### List the content of a directory:
@@ -136,8 +144,9 @@ or
 ### Texter Commands
 #### Start the conversion process:
 ```
-/cv
+/cv (output: -v / --verbose ; -b / --brief)
 ```
+(default: brief final output)
 
 #### Download and install pandoc:
 ```
