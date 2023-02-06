@@ -497,12 +497,12 @@ if __name__ == '__main__':
                 print(f"{Tips.WARNING} Make sure you have a BACKUP in case of errors")
                 user_input = input("Proceed with conversion? [y/n]: ").lower()
                 user_permission = get_confirmation(user_input)
-                if user_permission:
-                    converting = True
+                if user_permission == 'invalid':
+                    print("Invalid option. Conversion cancelled")
                 elif not user_permission:
                     print("Conversion cancelled")
                 else:
-                    print("Invalid option. Conversion cancelled")
+                    converting = True
             elif user_input.startswith('/t'):
                 allocator_output = thread_allocator(user_input, SYSTEM_CPUS)
                 if allocator_output:
@@ -513,7 +513,11 @@ if __name__ == '__main__':
                 print("[INFO] Make sure you have a stable internet connection")
                 user_input = input("Proceed with operation? [y/n]: ").lower()
                 user_permission = get_confirmation(user_input)
-                if user_permission:
+                if user_permission == 'invalid':
+                    print("Invalid option. Download cancelled")
+                elif not user_permission:
+                    print("Download cancelled")
+                else:
                     print()
                     try:
                         print("[INFO] Attempting to connect to the pandoc github repo ...")
@@ -522,10 +526,6 @@ if __name__ == '__main__':
                     except TimeoutError:
                         print(f"{Tips.ERROR} Connection timed out. Couldn't download pandoc")
                     print()
-                elif not user_permission:
-                    print("Download cancelled")
-                else:
-                    print("Invalid option. Download cancelled")
             elif user_input == '/h':
                 for command in COMMANDS:
                     print(command)
