@@ -10,19 +10,19 @@ import os
 import sys
 import logging
 
-from math import ceil
 from time import perf_counter
-from datetime import datetime
-from traceback import format_exc
-
 from multiprocessing import Pool
 from multiprocessing import freeze_support
 from multiprocessing import set_start_method
 
 
 # coreutils custom modules
+from coreutils import Tips
+from coreutils import Colors
 from coreutils import SEPARATOR
+
 from coreutils import write_settings
+from coreutils import write_crashlog
 from coreutils import refresh_display
 from coreutils import thread_allocator
 from coreutils import get_confirmation
@@ -41,29 +41,6 @@ from pypandoc import download_pandoc
 from pdfminer.high_level import extract_text
 
 
-class Colors:
-    RESET = '\033[0m'
-    RED = '\033[1;31m'
-    GREEN = '\033[1;32m'
-    YELLOW = '\033[1;33m'
-    BLUE = '\033[1;34m'
-    CYAN = '\033[1;36m'
-
-class Tips:
-    # General tips
-    ERROR = f"{Colors.RED}[ERROR]{Colors.RESET}"
-    WARNING = f"{Colors.RED}[WARNING]{Colors.RESET}"
-
-    # Converter-specific tips
-    SUCCESS = f"{Colors.GREEN}##{Colors.RESET}"
-    SKIPPED = f"{Colors.BLUE}%%{Colors.RESET}"
-    UNSURE1 = f"{Colors.YELLOW}@@{Colors.RESET}"
-    UNSURE2 = f"{Colors.YELLOW}||{Colors.RESET}"
-    FINISH = f"{Colors.CYAN}$${Colors.RESET}"
-    FAIL1 = f"{Colors.RED}XX{Colors.RESET}"
-    FAIL2 = f"{Colors.RED}||{Colors.RESET}"
-
-
 # GLOBAL CONSTANTS
 VERSION = 1.0
 PROGRAM = 'Texter'
@@ -78,8 +55,8 @@ CAT = [
 
 COMMANDS = [
     "Usage: /[command] <required parameter> (optional parameter)\n",
-    "/ap <absolute path> : change the convert directory to a folder outside the script directory",
-    "/cd <relative path> : change the convert directory to a folder inside the script directory",
+    "/ap <absolute path> : change the convert directory to a folder using its full path",
+    "/cd <relative path> : change the convert directory to a folder relative to the current directory",
     "/ls (column) (dir)  : list all items in the convert directory",
     "/cv                 : start the conversion process",
     "/pd                 : download and install the pandoc runtime",
@@ -475,12 +452,5 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print("\nInterrupt signal received")
     except Exception as err:
-        LOGGING_DIR = os.path.join(CONFIG_DIR, f"{PROGRAM.lower()}_log.txt")
-        with open(LOGGING_DIR, 'a', encoding='utf8') as log:
-            log.write(f"### {PROGRAM.upper()} SESSION: {datetime.now()} {'#' * 40}\n")
-            log.write('-' * len(f"### {PROGRAM.upper()} SESSION: {datetime.now()} {'#' * 40}") + '\n')
-            log.write(f"{format_exc()}\n\n")
-        print(f"{Tips.ERROR} Program terminated by script error")
-        print(f"{Tips.ERROR} {err}")
-        print(f"{Tips.ERROR} Please inspect {PROGRAM.lower()}_log.txt in the config folder for more information\n")
+        write_crashlog(CONFIG_DIR, PROGRAM, err)
         user_input = input("Press <ENTER> to exit ")

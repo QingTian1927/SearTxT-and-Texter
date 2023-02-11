@@ -6,6 +6,8 @@
 
 import os
 from math import ceil
+from datetime import datetime
+from traceback import format_exc
 
 # GLOBAL CONSTANTS
 SEPARATOR = '<@v@>'
@@ -53,6 +55,17 @@ def write_settings(settings_directory, arguments):
 
 
 def refresh_display(program, version, script_dir, notification='', method=''):
+    """
+    Clear the display and print out some essential information.
+
+    Keyword arguments:
+    (all str)
+    * program       --  the program name (duh)
+    * version       --  the current program version (also float)
+    * script_dir    --  the script/binary actual directory
+    * notification  --  any notice to the user
+    * method        --  the current search method (SearTxT)
+    """
     if os.name == 'nt':
         os.system('cls')
     else:
@@ -228,7 +241,7 @@ def validate_os_path(file_name):
     * file_name (str)  --  the path to be validated
 
     Supported platforms:
-    * 'nt'
+    * 'nt': illegal file names/characters & no '...(n)'
 
     Return values:
     * OSError  --  if the given path is invalid
@@ -236,14 +249,14 @@ def validate_os_path(file_name):
     """
 
     WIN_ILLEGAL_CHARS = list('<>:"/\|?*')
-    WIN_ILLEGAL_DIRS = [
+    WIN_ILLEGAL_NAMES = [
         'CON', 'PRN', 'AUX', 'NUL',
         'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9',
         'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9',
     ]
 
     if os.name == 'nt':
-        if file_name in WIN_ILLEGAL_DIRS:
+        if file_name in WIN_ILLEGAL_NAMES:
             raise OSError
         if file_name.endswith('.') or file_name.endswith(''):
             raise OSError
@@ -272,6 +285,24 @@ class ListDirError(Exception):
         super().__init__(self.message)
 
 def validate_ls_args(args, columns):
+    """
+    Validate the arguments used for list_directory().
+
+    Keyword arguments:
+    * args (str)     --  the user's given arguments for list_directory()
+    * columns (int)  --  the previously used number for ls (column)
+
+    Valid inputs:
+    * args[ls_num] > 0
+    * args[ls_dir] in: ('')
+                       ('-t', '--target')
+                       ('-s', '--script')
+
+    Return values:
+    * ListDirError  --  if ls_dir is invalid
+    * ListNumError  --  if ls_num <= 0
+    * columns (int), ls_dir (str)
+    """
     args = args.lstrip('/ls').strip().split()
     ls_num = 0
     ls_dir = '-t'
@@ -295,3 +326,22 @@ def validate_ls_args(args, columns):
         columns = 2
     
     return columns, ls_dir
+
+
+def write_crashlog(config_dir, program, error):
+    """
+    Write the traceback exception to a crash log in the config folder.
+
+    Keyword arguments:
+    * config_dir (str)   --  the directory where configuration files are stored
+    * program (str)      --  the program name (duh)
+    * error (exception)  --  the traceback exception
+    """
+    LOGGING_DIR = os.path.join(config_dir, f"{program.lower()}_log.txt")
+    with open(LOGGING_DIR, 'a', 'utf8') as log:
+        log.write(f"### {program.upper()} SESSION: {datetime.now()} {'#' * 40}\n")
+        log.write('-' * len(f"### {program.upper()} SESSION: {datetime.now()} {'#' * 40}") + '\n')
+        log.write(f"{format_exc()}\n\n")
+    print(f"{Tips.ERROR} Program terminated by script error")
+    print(f"{Tips.ERROR} {error}")
+    print(f"{Tips.ERROR} Please inspect {program.lower()}_log.txt in the config folder for more information\n")
