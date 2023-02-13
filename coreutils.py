@@ -6,10 +6,14 @@
 
 import os
 from math import ceil
+from random import randint
 from datetime import datetime
 from traceback import format_exc
 
-# GLOBAL CONSTANTS
+# -------------------------- #
+# GLOBAL CONSTANTS & CLASSES #
+# -------------------------- #
+
 SEPARATOR = '<@v@>'
 
 class Colors:
@@ -20,6 +24,9 @@ class Colors:
     YELLOW = '\033[1;33m'
     BLUE = '\033[1;34m'
     CYAN = '\033[1;36m'
+
+    # Dictionary for quick translation
+    DICTIONARY = {'RED' : RED, 'GREEN' : GREEN, 'YELLOW' : YELLOW, 'BLUE' : BLUE, 'CYAN' : CYAN}
 
 class Tips:
     """Custom class for frequently used tips."""
@@ -36,6 +43,9 @@ class Tips:
     FAIL1 = f"{Colors.RED}XX{Colors.RESET}"
     FAIL2 = f"{Colors.RED}||{Colors.RESET}"
 
+# ----------------------- #
+# MISCELLANEOUS FUNCTIONS #
+# ----------------------- #
 
 def write_settings(settings_directory, arguments):
     """
@@ -72,12 +82,12 @@ def refresh_display(program, version, script_dir, notification='', method=''):
         os.system('clear')
     print(f"{Colors.CYAN}***** DBVG {program} ver {version} *****{Colors.RESET}")
     print(f"Script directory: {Colors.CYAN}{script_dir}{Colors.RESET}")
-    
+
     if method == 'exact_match':
         print(f"Search method: {Colors.CYAN}exact match{Colors.RESET}")
     elif method:
         print(f"Search method: {Colors.CYAN}approximate match{Colors.RESET}")
-    
+
     if notification:
         print(notification)
     else:
@@ -85,7 +95,7 @@ def refresh_display(program, version, script_dir, notification='', method=''):
 
 def get_confirmation(choice):
     """
-    Validate the user's anwser to y/n questions.
+    Validate the user's answser to y/n questions.
 
     Keyword argument:
     * choice (str)  --  the user's answer
@@ -100,6 +110,32 @@ def get_confirmation(choice):
     if choice in ('n', 'no'):
         return False
     return 'invalid'
+
+
+def bash_prompt_dir(target_path, home_path):
+    """
+    Create Bash-like prompt directory.
+
+    Ex: /home/DBVG/SearTxT/example
+    ->  ~/example
+
+    Keyword arguments:
+    (all str)
+    * target_path  --  the full path
+    * home_path    --  the path to be abbreviated (e.g. home directory)
+
+    Return values:
+    * bash_path (str) -- the shortened path
+    """
+    if home_path in target_path and home_path != target_path:
+        tail_dir = target_path[len(home_path):]
+        bash_path = f"~{tail_dir}"
+    elif home_path == target_path:
+        bash_path = '~'
+    else:
+        bash_path = target_path
+
+    return bash_path
 
 
 def thread_allocator(user_threads, total_cpu):
@@ -129,6 +165,9 @@ def thread_allocator(user_threads, total_cpu):
             print(f"{Tips.ERROR} The number of allocated processors must be greater than 0")
             return False
     except ValueError:
+        if user_threads not in ('-h', '--half', '-q', '--quarter', '-a', '--all', ''):
+            print(f"{Tips.ERROR} Invalid option for /t (cpu thread)")
+            return False
         # Ceil ensures that at least 1 cpu thread will always be allocated
         if user_threads in ('-h', '--half'):
             user_threads = ceil(total_cpu / 2)
@@ -136,11 +175,11 @@ def thread_allocator(user_threads, total_cpu):
             user_threads = ceil(total_cpu / 4)
         elif user_threads in ('-a', '--all', ''):
             user_threads = total_cpu
-        else:
-            print(f"{Tips.ERROR} Invalid option for /t (cpu thread)")
-            return False
     return int(user_threads)
 
+# ---------------------------- #
+# PATH TRAVERSAL RELATED STUFF #
+# ---------------------------- #
 
 # Custom exceptions for the "/cd" function
 class PathSeparatorError(Exception):
@@ -187,7 +226,7 @@ def change_target(script_dir, user_path, path_type, current_target=''):
             new_target = os.path.join(current_target, user_path)
     elif path_type == '/ap':
         new_target = user_path
-    
+
     if os.path.exists(new_target):
         return new_target.strip()
     raise OSError
@@ -218,11 +257,10 @@ def traverse_relative_path(relative_path, full_path):
     for dir_name in relative_path:
         if dir_name == '.':
             continue
-        elif dir_name == '..':
-            if full_path:
-                full_path.pop()
-            else:
+        if dir_name == '..':
+            if not full_path:
                 raise IndexError
+            full_path.pop()
         elif dir_name not in ('~', '..', ''):
             validate_os_path(dir_name)
             full_path.append(dir_name)
@@ -247,22 +285,20 @@ def validate_os_path(file_name):
     * OSError  --  if the given path is invalid
     * Nothing  --  if the given path is valid
     """
-
-    WIN_ILLEGAL_CHARS = list('<>:"/\|?*')
-    WIN_ILLEGAL_NAMES = [
-        'CON', 'PRN', 'AUX', 'NUL',
-        'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9',
-        'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9',
-    ]
-
     if os.name == 'nt':
-        if file_name in WIN_ILLEGAL_NAMES:
+        win_illegal_chars = tuple(r'<>:"/\|?*')
+        win_illegal_names = (
+            'CON', 'PRN', 'AUX', 'NUL',
+            'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9',
+            'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9',
+        )
+        if file_name in win_illegal_names:
             raise OSError
-        if file_name.endswith('.') or file_name.endswith(''):
+        if file_name.endswith('.') or file_name.endswith(' '):
             raise OSError
         only_periods = True
         for char in file_name:
-            if char in WIN_ILLEGAL_CHARS:
+            if char in win_illegal_chars:
                 raise OSError
             # On Windows 10 & 11, os.path.exists('C:\\foo\\bar\\...(n)') yields a valid path
             # but accessing it will crash the program with the following exception:
@@ -272,14 +308,19 @@ def validate_os_path(file_name):
         if only_periods:
             raise OSError
 
+# ------------------------------ #
+# LIST_DIRECTORY() RELATED STUFF #
+# ------------------------------ #
 
 # Custom exceptions for the "/ls" function
 class ListNumError(Exception):
+    """Custom exception for zero or negative ls_num."""
     def __init__(self, message="/ls (column) must be greater than 0"):
         self.message = message
         super().__init__(self.message)
 
 class ListDirError(Exception):
+    """Custom exception for invalid ls_dir."""
     def __init__(self, message="Invalid parameter for /ls (dir)"):
         self.message = message
         super().__init__(self.message)
@@ -310,8 +351,7 @@ def validate_ls_args(args, columns):
     # Argument parser - could probably be improved
     for arg in args:
         try:
-            if isinstance(int(arg), int):
-                ls_num = arg
+            ls_num = int(arg)
         except ValueError:
             ls_dir = arg
 
@@ -319,14 +359,84 @@ def validate_ls_args(args, columns):
         raise ListDirError
 
     if ls_num:
-        if int(ls_num) <= 0:
+        if ls_num <= 0:
             raise ListNumError
-        columns = int(ls_num)
+        columns = ls_num
     elif not ls_num and not columns:
         columns = 2
-    
+
     return columns, ls_dir
 
+def register_file_colors(color_associations, color_values):
+    file_colors = {}
+    for association in color_associations:
+        color = color_associations.get(association)
+        if color in color_values:
+            color_code = color_values.get(color)
+
+        file_types = association.split()
+        for entry in file_types:
+            if entry in file_colors:
+                continue
+            file_colors[entry] = color_code
+
+    return file_colors
+
+def list_directory(path, columns=2, file_colors='', unsupported_types=''):
+    max_lens = [0] * columns
+    row_index = 0
+    single_row = ''
+    multiple_rows = []
+    output_string = ''
+
+    # Parse and register color associations
+    if file_colors:
+        file_colors = register_file_colors(file_colors, Colors.DICTIONARY)
+
+    # First separate the sorted entries into different columns
+    ls_entries = os.listdir(path)
+    ls_entries.sort(key=str.lower)
+
+    for ls_index, ls_entry in enumerate(ls_entries):
+        if len(ls_entry) > max_lens[row_index]:
+            max_lens[row_index] = len(ls_entry)
+        single_row += f"{ls_entry}{SEPARATOR}"
+        row_index += 1
+
+        if row_index == columns or ls_index == len(ls_entries) - 1:
+            multiple_rows.append(single_row)
+            row_index = 0
+            single_row = ''
+
+    # Append additional spaces to the entries depending on their column position
+    # Print the entire row once all columns are appended
+    for ls_entry in multiple_rows:
+        single_row = list(filter(None, ls_entry.split(SEPARATOR)))
+        for index, item in enumerate(single_row):
+            spaces = ' ' * (max_lens[row_index] - len(item))
+            file_type = os.path.splitext(item)[1]
+            terminus = ' ' * 2
+
+            if row_index < columns:
+                if file_colors and file_type in file_colors:
+                    output_string += f"{file_colors.get(file_type)}{item}{Colors.RESET}{spaces}{terminus}"
+                elif unsupported_types and file_type in unsupported_types:
+                    output_string += f"{Colors.YELLOW}{item}{Colors.RESET}{spaces}{terminus}"
+                elif os.path.isdir(os.path.join(path, item)):
+                    output_string += f"{Colors.CYAN}{item}{Colors.RESET}{spaces}{terminus}"
+                else:
+                    output_string += f"{item}{spaces}{terminus}"
+            row_index += 1
+
+            if row_index == columns or index == len(single_row) - 1:
+                print(output_string.strip())
+                row_index = 0
+                output_string = ''
+    print()
+
+# -------------------------- #
+# TRACEBACK CRASH LOGGER >~< #
+# -------------------------- #
 
 def write_crashlog(config_dir, program, error):
     """
@@ -337,11 +447,35 @@ def write_crashlog(config_dir, program, error):
     * program (str)      --  the program name (duh)
     * error (exception)  --  the traceback exception
     """
-    LOGGING_DIR = os.path.join(config_dir, f"{program.lower()}_log.txt")
-    with open(LOGGING_DIR, 'a', 'utf8') as log:
-        log.write(f"### {program.upper()} SESSION: {datetime.now()} {'#' * 40}\n")
-        log.write('-' * len(f"### {program.upper()} SESSION: {datetime.now()} {'#' * 40}") + '\n')
-        log.write(f"{format_exc()}\n\n")
+    ran_num = randint(0, 5)
+    chances = (2, 4)
+    if ran_num in chances:
+        crash_messages = (
+            r"Oops, sorry mate :(",
+            r"I'll try better next time :'(",
+            r"Let's have a ~~HUG~~ >.<",
+            r"At least your computer didn't blow up right ;)",
+            r"Sussy imposter detected in the script >:(",
+            r"ごめなさい >~<",
+            r"私のコードはちょっと変だね T-T",
+            r"何も分からない ¯\_(ツ)_/¯",
+            r"今寝る -.- zzZ",
+        )
+        secret_message = crash_messages[randint(0, len(crash_messages) - 1)]
+
+    session = f"### {program.upper()} SESSION: {datetime.now()} {'#' * 40}\n"
+    dash_border = '-' * len(session) + '\n'
+
+    logging_dir = os.path.join(config_dir, f"{program.lower()}_log.txt")
+    with open(logging_dir, 'a', encoding='utf8') as log:
+        log.write(session)
+        log.write(dash_border)
+        log.write(f"{format_exc()}")
+        if ran_num in chances:
+            log.write(f"\n{secret_message}")
+        log.write(f"\n{dash_border}\n\n")
+
+    print('\n------------------------------------------')
     print(f"{Tips.ERROR} Program terminated by script error")
     print(f"{Tips.ERROR} {error}")
     print(f"{Tips.ERROR} Please inspect {program.lower()}_log.txt in the config folder for more information\n")

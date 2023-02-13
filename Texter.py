@@ -15,6 +15,10 @@ from multiprocessing import Pool
 from multiprocessing import freeze_support
 from multiprocessing import set_start_method
 
+# foreign modules
+from pypandoc import convert_file
+from pypandoc import download_pandoc
+from pdfminer.high_level import extract_text
 
 # coreutils custom modules
 from coreutils import Tips
@@ -28,32 +32,28 @@ from coreutils import thread_allocator
 from coreutils import get_confirmation
 
 from coreutils import change_target
+from coreutils import bash_prompt_dir
 from coreutils import PathSeparatorError
 
 from coreutils import ListNumError
 from coreutils import ListDirError
 from coreutils import validate_ls_args
-
-
-# foreign modules
-from pypandoc import convert_file
-from pypandoc import download_pandoc
-from pdfminer.high_level import extract_text
+from coreutils import list_directory
 
 
 # GLOBAL CONSTANTS
 VERSION = 1.0
 PROGRAM = 'Texter'
 
-CAT = [
+CAT = (
     "        ∧＿∧",
     "  ／＼（ ・∀・）／ヽ",
     "（ ● と    つ ●   ）",
     "  ＼/⊂、  ノ   ＼ノ",
     "      し’",
-]
+)
 
-COMMANDS = [
+COMMANDS = (
     "Usage: /[command] <required parameter> (optional parameter)\n",
     "/ap <absolute path> : change the convert directory to a folder using its full path",
     "/cd <relative path> : change the convert directory to a folder relative to the current directory",
@@ -64,9 +64,9 @@ COMMANDS = [
     "/h                  : display all available commands",
     "/q                  : terminate the program",
     "/t (thread)         : specify the number of cpu threads used for conversion\n",
-]
+)
 
-DEFAULT_UNSUPPORTED_TYPES = [
+DEFAULT_UNSUPPORTED_TYPES = (
     "# Officially Unsupported File Types\n",
     "# -----------------------------------------------------------------\n",
     "# To add additional file types, use the following structure:\n",
@@ -84,7 +84,7 @@ DEFAULT_UNSUPPORTED_TYPES = [
     ".rs .vbs .lua .p .pas .kt .java\n",
     ".c .C .cs .c++ .cc .cpp .cxx\n",
     ".lisp .go .hs\n",
-]
+)
 
 
 def settings_arguments(target_directory):
@@ -107,57 +107,6 @@ def fetch_types(types_raw):
         for type_ in line.split():
             unsupported_types.append(type_)
     return unsupported_types
-
-
-# List all entries within a specified directory and alphanumerically arrange them in a number of columns
-def list_directory(directory, display_columns=2):
-    max_lens = [0] * display_columns
-    row_index = 0
-    single_row = ''
-    multiple_rows = []
-    output_string = ''
-
-    # First separate the sorted entries into different columns
-    ls_entries = os.listdir(directory)
-    ls_entries.sort(key=str.lower)
-    for ls_index, ls_entry in enumerate(ls_entries, start=0):
-        if len(ls_entry) > max_lens[row_index]:
-            max_lens[row_index] = len(ls_entry)
-        single_row += f"{ls_entry}{SEPARATOR}"
-        row_index += 1
-
-        if row_index == display_columns or ls_index == len(ls_entries) - 1:
-            multiple_rows.append(single_row)
-            row_index = 0
-            single_row = ''
-
-    # Append additional spaces to the entries depending on their column position
-    # Print the entire row once all columns are appended
-    for ls_index, ls_entry in enumerate(multiple_rows, start=0):
-        raw_list = list(filter(None, ls_entry.split(SEPARATOR)))
-        for item_index, item in enumerate(raw_list, start=0):
-            spaces = " " * (max_lens[row_index] - len(item))
-
-            if row_index < display_columns:
-                if os.path.isdir(os.path.join(directory, item)):
-                    output_string += f"{Colors.CYAN}{item}{Colors.RESET}{spaces}  "
-                elif item.endswith(".docx"):
-                    output_string += f"{Colors.BLUE}{item}{Colors.RESET}{spaces}  "
-                elif item.endswith(".pdf"):
-                    output_string += f"{Colors.RED}{item}{Colors.RESET}{spaces}  "
-                elif item.endswith(".txt"):
-                    output_string += f"{Colors.GREEN}{item}{Colors.RESET}{spaces}  "
-                elif os.path.splitext(item)[1] in UNSUPPORTED_TYPES:
-                    output_string += f"{Colors.YELLOW}{item}{Colors.RESET}{spaces}  "
-                else:
-                    output_string += f"{item}{spaces}  "
-            row_index += 1
-
-            if row_index == display_columns or item_index == len(raw_list) - 1:
-                print(output_string.strip())
-                row_index = 0
-                output_string = ''
-    print()
 
 
 def file_converter(args):
@@ -304,17 +253,7 @@ if __name__ == '__main__':
     notifications = ''  # reset notifications for later loops
     try:
         while softwaring:
-            # Bash-like prompt
-            # Relative paths are abbreviated with '~'
-            # Ex: /home/DBVG/SearTxT/example
-            # ->  ~/example
-            if SCRIPT_DIR in target_dir and SCRIPT_DIR != target_dir:
-                tail_dir = target_dir[len(SCRIPT_DIR):]
-                prompt_dir = f"~{tail_dir}"
-            elif SCRIPT_DIR == target_dir:
-                prompt_dir = '~'
-            else:
-                prompt_dir = target_dir
+            prompt_dir = bash_prompt_dir(target_dir, SCRIPT_DIR)
             user_input = input(f"{Colors.CYAN}[{PROGRAM} {prompt_dir}]${Colors.RESET} ")
 
             # Handling user input
@@ -323,10 +262,11 @@ if __name__ == '__main__':
             elif user_input.startswith('/ls'):
                 try:
                     ls_column, ls_dir = validate_ls_args(user_input, ls_column)
+                    FILE_COLORS = {'.docx' : 'BLUE', '.pdf' : 'RED', '.txt' : 'GREEN'}
                     if ls_dir in ('-t', '--target'):
-                        list_directory(target_dir, ls_column)
+                        list_directory(target_dir, ls_column, FILE_COLORS, UNSUPPORTED_TYPES)
                     elif ls_dir in ('-s', '--script'):
-                        list_directory(SCRIPT_DIR, ls_column)
+                        list_directory(SCRIPT_DIR, ls_column, FILE_COLORS, UNSUPPORTED_TYPES)
                 except ListNumError:
                     print(f"{Tips.ERROR} /ls (column) must be greater than 0")
                 except ListDirError:
