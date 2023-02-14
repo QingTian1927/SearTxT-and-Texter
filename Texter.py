@@ -4,7 +4,6 @@
 # Foreign dependencies: pypandoc, pdfminer.six  #
 # --------------------------------------------- #
 
-
 # native modules
 import os
 import sys
@@ -20,28 +19,42 @@ from pypandoc import convert_file
 from pypandoc import download_pandoc
 from pdfminer.high_level import extract_text
 
-# coreutils custom modules
+# ----------------------- #
+# COREUTILS CUSTOM MODULE #
+# ----------------------- #
+
+# Shared constants & classes
 from coreutils import Tips
 from coreutils import Colors
 from coreutils import SEPARATOR
 
+# Miscellaneous functions
 from coreutils import write_settings
 from coreutils import write_crashlog
 from coreutils import refresh_display
-from coreutils import thread_allocator
 from coreutils import get_confirmation
 
+# Processors allocation
+from coreutils import ZeroThreadError
+from coreutils import thread_allocator
+from coreutils import TooManyThreadError
+from coreutils import ThreadAllocatorArgumentError
+
+# Path traversal & manipulation
 from coreutils import change_target
 from coreutils import bash_prompt_dir
 from coreutils import PathSeparatorError
 
+# Directory listing
 from coreutils import ListNumError
 from coreutils import ListDirError
 from coreutils import validate_ls_args
 from coreutils import list_directory
 
+# ---------------- #
+# GLOBAL CONSTANTS #
+# ---------------- #
 
-# GLOBAL CONSTANTS
 VERSION = 1.0
 PROGRAM = 'Texter'
 
@@ -86,6 +99,9 @@ DEFAULT_UNSUPPORTED_TYPES = (
     ".lisp .go .hs\n",
 )
 
+# ------------------------- #
+# TEXTER-SPECIFIC FUNCTIONS #
+# ------------------------- #
 
 def settings_arguments(target_directory):
     settings_args_list = [f"target_dir = {target_directory}"]
@@ -184,20 +200,20 @@ if __name__ == '__main__':
     freeze_support()           # Required for binary compilation
     set_start_method('spawn')  # Ensure compatibility with Windows (and macOS)
 
-
     # Initialize script directory
     if getattr(sys, 'frozen', False):
         SCRIPT_DIR = os.path.dirname(sys.executable)
     else:
         SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
+    # ------------------------------------ #
+    # INTERACTIVE SESSION GLOBAL CONSTANTS #
+    # ------------------------------------ #
 
-     # GLOBAL VARIABLES
-    softwaring = True
     converting = False
 
     notifications = ''
-    ls_column = 0
+    saved_columns = 0
     SYSTEM_CPUS = os.cpu_count()
     allocated_threads = SYSTEM_CPUS
     converter_verbose_output = False
@@ -207,6 +223,9 @@ if __name__ == '__main__':
     DEFAULT_TARGET_DIR = os.path.join(SCRIPT_DIR, 'example')
     TYPES_DIR = os.path.join(CONFIG_DIR, 'unsupported_types.conf')
 
+    # ------------------------- #
+    # INITIALIZE CONFIGURATIONS #
+    # ------------------------- # 
 
     # Read config file. Generate the default config and create the config directory in case of errors
     try:
@@ -236,7 +255,6 @@ if __name__ == '__main__':
         write_settings(SETTINGS_DIR, settings_arguments(target_dir))
         notifications = f"> {PROGRAM.lower()}.conf couldn't be found. Generated a default template\n"
 
-
     # Get the additional file types from the config file. Generate a default template in case of errors
     try:
         with open(TYPES_DIR, 'r', encoding='utf8') as types_file:
@@ -247,148 +265,207 @@ if __name__ == '__main__':
         UNSUPPORTED_TYPES = fetch_types(DEFAULT_UNSUPPORTED_TYPES)
         notifications += "> unsupported_types.conf couldn't be found. Generated a default template\n"
 
+    # -------------------------- #
+    # COMMANDS RELATED FUNCTIONS #
+    # -------------------------- #
 
-    # Main program loop
+    def ls_command(ls_args, ls_column):
+        try:
+            ls_num, ls_dir = validate_ls_args(ls_args, ls_column)
+            FILE_COLORS = {'.docx' : 'BLUE', '.pdf' : 'RED', '.txt' : 'GREEN'}
+            if ls_dir in ('-t', '--target'):
+                list_directory(target_dir, ls_num, FILE_COLORS, UNSUPPORTED_TYPES)
+            elif ls_dir in ('-s', '--script'):
+                list_directory(SCRIPT_DIR, ls_num, FILE_COLORS, UNSUPPORTED_TYPES)
+            return ls_num
+        except ListNumError:
+            print(f"{Tips.ERROR} /ls (column) must be greater than 0")
+        except ListDirError:
+            print(f"{Tips.ERROR} Invalid value for /ls (dir)")
+
+    def cd_command(given_path, current_dir):
+        try:
+            new_dir = change_target(SCRIPT_DIR, given_path, '/cd', current_dir)
+            write_settings(SETTINGS_DIR, settings_arguments(new_dir))
+            refresh_display(PROGRAM, VERSION, SCRIPT_DIR)
+            return new_dir
+        except OSError:
+            print(f"{Tips.ERROR} Couldn't find {given_path} in the current directory")
+        except IndexError:
+            print(f"{Tips.ERROR} {given_path} is an invalid relative path")
+        except PathSeparatorError:
+            print(f"{Tips.ERROR} {given_path} contains invalid path separator")
+        return current_dir
+
+    def ap_command(given_path, current_dir):
+        try:
+            new_dir = change_target(SCRIPT_DIR, given_path, '/ap')
+            write_settings(SETTINGS_DIR, settings_arguments(target_dir))
+            refresh_display(PROGRAM, VERSION, SCRIPT_DIR)
+            return new_dir
+        except OSError:
+            print(f"{Tips.ERROR} {given_path} is an invalid directory")
+        return current_dir
+
+    def pd_command():
+        print("[INFO] This will download and install pandoc via the pypandoc library")
+        print("[INFO] Make sure you have a stable internet connection")
+        u_input = input("Proceed with operation? [y/n]: ").lower()
+        user_permission = get_confirmation(u_input)
+        if user_permission == 'invalid':
+            print("Invalid option. Download cancelled")
+        elif not user_permission:
+            print("Download cancelled")
+        else:
+            print()
+            try:
+                print("[INFO] Attempting to connect to the pandoc github repo ...")
+                download_pandoc()
+                print("[INFO] Pandoc was successfully installed")
+            except TimeoutError:
+                print(f"{Tips.ERROR} Connection timed out. Couldn't download pandoc")
+            print()
+
+    def t_command(u_input):
+        try:
+            allocator_output = thread_allocator(u_input, SYSTEM_CPUS)
+            print(f"Allocated ({allocator_output}) cpu threads to the conversion process")
+            return allocator_output
+        except TooManyThreadError:
+            print(f"{Tips.ERROR} Cannot allocate more than ({SYSTEM_CPUS}) cpu threads on this system")
+        except ZeroThreadError:
+            print(f"{Tips.ERROR} The number of allocated processors must be greater than 0")
+        except ThreadAllocatorArgumentError:
+            print(f"{Tips.ERROR} Invalid option for /t (cpu thread)")
+
+    def cv_command(u_input):
+        u_input = user_input.lstrip('/cv').strip()
+        if u_input in ('-v', '--verbose'):
+            verbose_output = True
+        elif u_input in ('-b', '--brief', ''):
+            verbose_output = False
+
+        print(f"{Tips.WARNING} This will {Colors.RED}PERMANENTLY DELETE{Colors.RESET} the original files")
+        print(f"{Tips.WARNING} Make sure you have a BACKUP in case of errors")
+        u_input = input("Proceed with conversion? [y/n]: ").lower()
+        user_permission = get_confirmation(u_input)
+
+        if user_permission == 'invalid':
+            print("Invalid option. Conversion cancelled")
+            return False
+        if not user_permission:
+            print("Conversion cancelled")
+            return False
+        start_converting = True
+        return start_converting, verbose_output
+
+    # -------------------------- #
+    # CONVERTER WRAPPER FUNCTION #
+    # -------------------------- #
+
+    def converter_wrapper(convert_dir, verbose_output=''):
+        while True:
+            print("\nStarting conversion process...")
+            print("------------------------------")
+            converter_args = []
+            success_count = 0
+            fail_count = 0
+            unsure_count = 0
+            skip_count = 0
+
+            logging.disable()  # disable pypandoc error logs
+            start_time = perf_counter()
+
+            for each_file in os.listdir(convert_dir):
+                converter_args.append(f"{each_file}{SEPARATOR}{convert_dir}{SEPARATOR}{UNSUPPORTED_TYPES}")
+            with Pool(allocated_threads) as pool:
+                for output, status in pool.imap_unordered(file_converter, converter_args):
+                    print(output)
+                    if status == 'success':
+                        success_count += 1
+                    elif status == 'fail':
+                        fail_count += 1
+                    elif status == 'unsure':
+                        unsure_count += 1
+                    elif status == 'skip':
+                        skip_count += 1
+
+            end_time = perf_counter()
+            logging.disable(logging.NOTSET)
+
+            print()
+            if verbose_output:
+                if success_count > 0:
+                    print(f"{Tips.SUCCESS} Successful conversion(s): {Colors.GREEN}{success_count}{Colors.RESET}")
+                if fail_count > 0:
+                    print(f"{Tips.FAIL1} Failed conversion(s): {Colors.RED}{fail_count}{Colors.RESET}")
+                if unsure_count > 0:
+                    print(f"{Tips.UNSURE1} Attempted conversion(s): {Colors.YELLOW}{unsure_count}{Colors.RESET}")
+                if skip_count > 0:
+                    print(f"{Tips.SKIPPED} Skipped file(s): {Colors.BLUE}{skip_count}{Colors.RESET}")
+            else:
+                print(f"{Tips.FINISH} Operation result(s): "
+                      f"{Colors.GREEN}#{success_count}{Colors.RESET} "
+                      f"{Colors.RED}X{fail_count}{Colors.RESET} "
+                      f"{Colors.YELLOW}@{unsure_count}{Colors.RESET} "
+                      f"{Colors.BLUE}%{skip_count}{Colors.RESET}"
+                     )
+
+            print(f"{Tips.FINISH} Finished in {Colors.CYAN}{end_time - start_time:.5f}{Colors.RESET} seconds with"
+                  f" ({allocated_threads}) cpu threads")
+            print('-' * len(f"$$ Finished in {end_time - start_time:.5f} seconds with ({allocated_threads}) "
+                            f"cpu threads"))
+            break
+
+    # ----------------- #
+    # MAIN PROGRAM LOOP #
+    # ----------------- #
+
     refresh_display(PROGRAM, VERSION, SCRIPT_DIR, notifications)
     notifications = ''  # reset notifications for later loops
     try:
-        while softwaring:
+        while True:
             prompt_dir = bash_prompt_dir(target_dir, SCRIPT_DIR)
             user_input = input(f"{Colors.CYAN}[{PROGRAM} {prompt_dir}]${Colors.RESET} ")
 
             # Handling user input
+            if user_input.startswith('/ls'):
+                saved_columns = ls_command(user_input, saved_columns)
+                continue
+            if user_input.startswith('/cd'):
+                target_dir = cd_command(user_input, target_dir)
+                continue
+            if user_input.startswith('/ap'):
+                target_dir = ap_command(user_input, target_dir)
+                continue
+            if user_input.startswith('/t'):
+                allocated_threads = t_command(user_input)
+                continue
+            if user_input.startswith('/pd'):
+                pd_command()
+                continue
             if user_input == '/c':
                 refresh_display(PROGRAM, VERSION, SCRIPT_DIR)
-            elif user_input.startswith('/ls'):
-                try:
-                    ls_column, ls_dir = validate_ls_args(user_input, ls_column)
-                    FILE_COLORS = {'.docx' : 'BLUE', '.pdf' : 'RED', '.txt' : 'GREEN'}
-                    if ls_dir in ('-t', '--target'):
-                        list_directory(target_dir, ls_column, FILE_COLORS, UNSUPPORTED_TYPES)
-                    elif ls_dir in ('-s', '--script'):
-                        list_directory(SCRIPT_DIR, ls_column, FILE_COLORS, UNSUPPORTED_TYPES)
-                except ListNumError:
-                    print(f"{Tips.ERROR} /ls (column) must be greater than 0")
-                except ListDirError:
-                    print(f"{Tips.ERROR} Invalid value for /ls (dir)")
-            elif user_input.startswith('/cd'):
-                try:
-                    target_dir = change_target(SCRIPT_DIR, user_input, '/cd', target_dir)
-                    write_settings(SETTINGS_DIR, settings_arguments(target_dir))
-                    refresh_display(PROGRAM, VERSION, SCRIPT_DIR)
-                except OSError:
-                    print(f"{Tips.ERROR} Couldn't find {user_input} in the current directory")
-                except IndexError:
-                    print(f"{Tips.ERROR} {user_input} is an invalid relative path")
-                except PathSeparatorError:
-                    print(f"{Tips.ERROR} {user_input} contains invalid path separator")
-            elif user_input.startswith('/ap'):
-                try:
-                    target_dir = change_target(SCRIPT_DIR, user_input, '/ap')
-                    write_settings(SETTINGS_DIR, settings_arguments(target_dir))
-                    refresh_display(PROGRAM, VERSION, SCRIPT_DIR)
-                except OSError:
-                    print(f"{Tips.ERROR} {user_input} is an invalid directory")
-            elif user_input.startswith('/cv'):
-                user_input = user_input.lstrip('/cv').strip()
-                if user_input in ('-v', '--verbose'):
-                    converter_verbose_output = True
-                elif user_input in ('-b', '--brief', ''):
-                    converter_verbose_output = False
-                print(f"{Tips.WARNING} This will {Colors.RED}PERMANENTLY DELETE{Colors.RESET} the original files")
-                print(f"{Tips.WARNING} Make sure you have a BACKUP in case of errors")
-                user_input = input("Proceed with conversion? [y/n]: ").lower()
-                user_permission = get_confirmation(user_input)
-                if user_permission == 'invalid':
-                    print("Invalid option. Conversion cancelled")
-                elif not user_permission:
-                    print("Conversion cancelled")
-                else:
-                    converting = True
-            elif user_input.startswith('/t'):
-                allocator_output = thread_allocator(user_input, SYSTEM_CPUS)
-                if allocator_output:
-                    allocated_threads = allocator_output
-                    print(f"Allocated ({allocated_threads}) cpu threads to the conversion process")
-            elif user_input.startswith('/pd'):
-                print("[INFO] This will download and install pandoc via the pypandoc library")
-                print("[INFO] Make sure you have a stable internet connection")
-                user_input = input("Proceed with operation? [y/n]: ").lower()
-                user_permission = get_confirmation(user_input)
-                if user_permission == 'invalid':
-                    print("Invalid option. Download cancelled")
-                elif not user_permission:
-                    print("Download cancelled")
-                else:
-                    print()
-                    try:
-                        print("[INFO] Attempting to connect to the pandoc github repo ...")
-                        download_pandoc()
-                        print("[INFO] Pandoc was successfully installed")
-                    except TimeoutError:
-                        print(f"{Tips.ERROR} Connection timed out. Couldn't download pandoc")
-                    print()
-            elif user_input == '/h':
+                continue
+            if user_input == '/h':
                 for command in COMMANDS:
                     print(command)
-            elif user_input == '/q':
-                softwaring = False
-            elif user_input == '/cat':
+                continue
+            if user_input == '/cat':
                 for line in CAT:
                     print(line)
+                continue
+            if user_input.startswith('/cv'):
+                converting = cv_command(user_input)
+                if not converting:
+                    continue
+                _, verbose = converting
+                converter_wrapper(target_dir, verbose)
+                continue
+            if user_input == '/q':
+                sys.exit(0)
             else:
                 print(f"{Tips.ERROR} Invalid command. Type /h to see a list of available commands")
-
-            while converting:
-                print("\nStarting conversion process...")
-                print("------------------------------")
-                converter_args = []
-                success_count = 0
-                fail_count = 0
-                unsure_count = 0
-                skip_count = 0
-
-                logging.disable()  # disable pypandoc error logs
-                start_time = perf_counter()
-                for each_file in os.listdir(target_dir):
-                    converter_args.append(f"{each_file}{SEPARATOR}{target_dir}{SEPARATOR}{UNSUPPORTED_TYPES}")
-                with Pool(allocated_threads) as pool:
-                    for output, status in pool.imap_unordered(file_converter, converter_args):
-                        print(output)
-                        if status == 'success':
-                            success_count += 1
-                        elif status == 'fail':
-                            fail_count += 1
-                        elif status == 'unsure':
-                            unsure_count += 1
-                        elif status == 'skip':
-                            skip_count += 1
-                end_time = perf_counter()
-                logging.disable(logging.NOTSET)
-
-                print()
-                if converter_verbose_output:
-                    if success_count > 0:
-                        print(f"{Tips.SUCCESS} Successful conversion(s): {Colors.GREEN}{success_count}{Colors.RESET}")
-                    if fail_count > 0:
-                        print(f"{Tips.FAIL1} Failed conversion(s): {Colors.RED}{fail_count}{Colors.RESET}")
-                    if unsure_count > 0:
-                        print(f"{Tips.UNSURE1} Attempted conversion(s): {Colors.YELLOW}{unsure_count}{Colors.RESET}")
-                    if skip_count > 0:
-                        print(f"{Tips.SKIPPED} Skipped file(s): {Colors.BLUE}{skip_count}{Colors.RESET}")
-                else:
-                    print(f"{Tips.FINISH} Operation result(s): "
-                          f"{Colors.GREEN}#{success_count}{Colors.RESET} "
-                          f"{Colors.RED}X{fail_count}{Colors.RESET} "
-                          f"{Colors.YELLOW}@{unsure_count}{Colors.RESET} "
-                          f"{Colors.BLUE}%{skip_count}{Colors.RESET}"
-                    )
-
-                print(f"{Tips.FINISH} Finished in {Colors.CYAN}{end_time - start_time:.5f}{Colors.RESET} seconds with"
-                      f" ({allocated_threads}) cpu threads")
-                print('-' * len(f"$$ Finished in {end_time - start_time:.5f} seconds with ({allocated_threads}) "
-                                f"cpu threads"))
-                converting = False
     except KeyboardInterrupt:
         print("\nInterrupt signal received")
     except Exception as err:

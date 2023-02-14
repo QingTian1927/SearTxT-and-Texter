@@ -137,6 +137,27 @@ def bash_prompt_dir(target_path, home_path):
 
     return bash_path
 
+# ----------------------------- #
+# MULTI-THREADING RELATED STUFF #
+# ----------------------------- #
+
+class ZeroThreadError(Exception):
+    """Custom exception for the misallocation of zero cpu threads."""
+    def __init__(self, message="The number of allocated processors must be greater than 0"):
+        self.message = message
+        super().__init__(self.message)
+
+class TooManyThreadError(Exception):
+    """Custom exception for the misallocation of too many cpu threads."""
+    def __init__(self, message="The number of allocated processors exceeded that of the system"):
+        self.message = message
+        super().__init__(self.message)
+
+class ThreadAllocatorArgumentError(Exception):
+    """Custom exception for any undefined thread_allocator() arguments."""
+    def __init__(self, message="thread_allocator() received an invalid argument"):
+        self.message = message
+        super().__init__(self.message)
 
 def thread_allocator(user_threads, total_cpu):
     """
@@ -153,21 +174,20 @@ def thread_allocator(user_threads, total_cpu):
                        ('-a', '--all')
 
     Return values:
-    * False              --  any invalid value (also print error message)
-    * int(user_threads)  --  if user_threads was successfully verified
+    * ZeroThreadError               --  if user_threads <= 0
+    * TooManyThreadError            --  if user_threads > total_cpu
+    * ThreadAllocatorArgumentError  --  if user_threads is an unknown arg
+    * int(user_threads)             --  if user_threads is valid
     """
     user_threads = user_threads.lstrip('/t').strip()
     try:
         if int(user_threads) > total_cpu:
-            print(f"{Tips.ERROR} Cannot allocate more than ({total_cpu}) cpu threads on this system")
-            return False
+            raise TooManyThreadError
         if int(user_threads) <= 0:
-            print(f"{Tips.ERROR} The number of allocated processors must be greater than 0")
-            return False
+            raise ZeroThreadError
     except ValueError:
         if user_threads not in ('-h', '--half', '-q', '--quarter', '-a', '--all', ''):
-            print(f"{Tips.ERROR} Invalid option for /t (cpu thread)")
-            return False
+            raise ThreadAllocatorArgumentError
         # Ceil ensures that at least 1 cpu thread will always be allocated
         if user_threads in ('-h', '--half'):
             user_threads = ceil(total_cpu / 2)
@@ -181,8 +201,8 @@ def thread_allocator(user_threads, total_cpu):
 # PATH TRAVERSAL RELATED STUFF #
 # ---------------------------- #
 
-# Custom exceptions for the "/cd" function
 class PathSeparatorError(Exception):
+    """Custom exception for mismatching path separators."""
     def __init__(self, message="Invalid path separator found in given path"):
         self.message = message
         super().__init__(self.message)
@@ -312,7 +332,6 @@ def validate_os_path(file_name):
 # LIST_DIRECTORY() RELATED STUFF #
 # ------------------------------ #
 
-# Custom exceptions for the "/ls" function
 class ListNumError(Exception):
     """Custom exception for zero or negative ls_num."""
     def __init__(self, message="/ls (column) must be greater than 0"):
@@ -367,6 +386,7 @@ def validate_ls_args(args, columns):
 
     return columns, ls_dir
 
+# TODO: rewrite the color dictionary for direct access to color values
 def register_file_colors(color_associations, color_values):
     file_colors = {}
     for association in color_associations:
