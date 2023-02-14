@@ -481,7 +481,7 @@ def write_crashlog(config_dir, program, error):
             r"何も分からない ¯\_(ツ)_/¯",
             r"今寝る -.- zzZ",
         )
-        secret_message = crash_messages[randint(0, len(crash_messages) - 1)]
+        surprise_message = crash_messages[randint(0, len(crash_messages) - 1)]
 
     session = f"### {program.upper()} SESSION: {datetime.now()} {'#' * 40}\n"
     dash_border = '-' * len(session) + '\n'
@@ -492,7 +492,7 @@ def write_crashlog(config_dir, program, error):
         log.write(dash_border)
         log.write(f"{format_exc()}")
         if ran_num in chances:
-            log.write(f"\n{secret_message}")
+            log.write(f"\n{surprise_message}")
         log.write(f"\n{dash_border}\n\n")
 
     print('\n------------------------------------------')
