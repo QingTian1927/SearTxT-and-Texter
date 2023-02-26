@@ -85,9 +85,9 @@ Searcher, which was unnecessarily bloated to say the least
 Usage    : /command <required parameters> (optional parameters)
  or      : <any string of characters>
 Examples : /ls
-	   /ls 4 -s or /ls 4 --script
-	   /t
-	   /t -h    or /t --half
+	     /ls 4 -s or /ls 4 --script
+	     /t
+	     /t -h    or /t --half
 
 * /ap <absolute path> : change the target directory to one outside
                         the script directory
@@ -99,8 +99,8 @@ Examples : /ls
 * /ls (column: num)   : list the content of either the script
       (dir: -s          directory or the target directory
         or  --script    (default: script directory, 2 columns)
-	;   -t
-	or  --target)
+	  ;   -t
+	  or  --target)
 
 * /c                  : clear the display
 
@@ -117,9 +117,12 @@ Examples : /ls
 ---SEARTXT SPECIFIC COMMANDS---
 * /mt (method: -e     : search for exact matches or approximate
         or --exact      matches (default: exact match)
-	;  -p
-	or
-	--proximity)
+	  ;  -p
+	  or
+	  --proximity)
+
+* /s  (score: float)  : set the minimum score for approximate
+                        results (0.0 < s <= 1.0)
 
 ---TEXTER SPECIFIC COMMANDS---
 * /cv                 : start the conversion process
@@ -160,13 +163,3 @@ using the following link (you will need a Github account):
 # --------------------------------------------------------- #
 # https://github.com/QingTian1927/SearTxT-and-Texter/issues #
 # --------------------------------------------------------- #
-
-If you just want to get in contact for any particular reason,
-please send me an email to the following address:
-
-# ----------------------- #
-# qingtian63910@proton.me #
-# ----------------------- #
-
-Please note that while I will try my best to response to every
-email, I may not always be able to do so.
