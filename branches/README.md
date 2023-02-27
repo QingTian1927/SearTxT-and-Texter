@@ -1,6 +1,10 @@
 # Differences between the Branches
 ## Attention
-I don't really recommend using any of these branches as they are maintained with minimal effort. If you still want to use them, please be aware that **you may experience various kinds of bugs that may or may not damage your system.** (this should not be the case though as I've programmed SearTxT & Texter to be as non-destructive as possible)
+I don't really recommend using any of these branches as they are maintained with minimal effort. 
+
+If you still want to use them, please be aware that **you may experience various kinds of bugs that may or may not damage your system.** 
+
+(This should not be the case though as I've programmed SearTxT & Texter to be as non-destructive as possible)
 
 ### SearTxT Mix-threaded 
 In this branch, the `exact searcher` is single-threaded, whereas the `approximate searcher` is multi-threaded.
