@@ -21,7 +21,6 @@ These wonderful people have provided invaluable help and support in the creation
 1. [Quickstart](#quickstart)
 1. [Conversion](#conversion)
 1. [Building From Source](#building-from-source)
-1. [Differences Between the Branches](#differences-between-the-branches)
 1. [Known Issues](#known-issues)
 
 ## Features
@@ -32,7 +31,7 @@ These wonderful people have provided invaluable help and support in the creation
 * And many more (probably...)
 
 ## Installation
-Simply download the latest [release](https://github.com/QingTian1927/SearTxT-and-Texter/releases), extract the content of the `.zip` archive, and launch SearTxT or Texter with the appropriate executable.
+Simply download the latest [release](https://github.com/QingTian1927/SearTxT-and-Texter/releases), extract the contents of the `.zip` archive, and launch SearTxT or Texter with the appropriate executable.
 
 **Note:** Some anti-virus programs may falsely flag the executable as a virus and then quarantine it. To avoid this, you can either add the SearTxT directory as an exception, or completely disable the anti-virus software (not recommended)
 
@@ -80,42 +79,56 @@ python -m pip install --upgrade pip
 ## Usage
 ```
 Usage    : /command <required parameters> [optional parameters]
- or      : <any string of characters>
+ or      : <any string of characters> (SearTxT only)
 
 Examples : /ls
            /ls 4 -s or /ls 4 --script
-	   /t -h    or /t --half
+	       /t -h    or /t --half
 ```
 
 ### General Commands
 #### Change the target directory:
 ```
-/ap <absolute path>
+/cd [path] 
 ```
-or
+(default: script directory)
+
+**Platform-specific path separator:**
 ```
-/cd <relative path>  # (in relation to the script directory)
+/cd /home/DBVG/Documents     # UNIX absolute path
+    C:\Users\DBVG\Documents  # Windows absolute path
+    
+/cd ../../example            # UNIX relative path
+    ..\..\example            # Windows relative path
+```
 
-/cd ~ or just /cd    # To quickly change to the script folder
+**Quickly change to the script directory:**
+```
+/cd ~ or just /cd        # To quickly change to the script directory
 
-/cd ..               # To go up a directory
+/cd ~/example1/example2  # To quickly change to a folder inside the script directory
+```
 
-/cd ../../..         # To go up a number of directories
-    ..\..\..         (Windows)
+**Traverse relative paths:**
+```
+/cd example               # Enter the specified folder in the current directory
 
-/cd ../example       # To go up a number of directories and enter the specified directory
-    ..\example       (Windows)
+/cd ..                    # To go up a directory
+
+/cd ../../..              # To go up a number of directories
+
+/cd ../example1/example2  # To go up a number of directories and enter the specified directory
 ```
 
 #### List the content of a directory:
 ```
-/ls (column: num > 0) (dir: -s / --script ; -t / --target)
+/ls [column: num > 0] [dir: -s / --script ; -t / --target]
 ``` 
 (default: target dir, 3 columns)
 
 #### Configure the number of CPUs used for the multi-threaded processes:
 ```
-/t (threads: num ; -a / --all ; -h / --half ; -q / --quarter)
+/t [threads: num ; -a / --all ; -h / --half ; -q / --quarter]
 ``` 
 (default: all threads)
 
@@ -131,20 +144,20 @@ or
 ### SearTxT Commands
 #### Change the search method:
 ```
-/mt (method: -e / --exact ; -p / --proximity)
+/mt [method: -e / --exact ; -p / --proximity]
 ``` 
 (default: exact match)
 
 #### Change the minimum confidence score for approximate matches:
 ```
-/s (score: 0 < float < 1)
+/s [score: 0 < float < 1]
 ```
 (default: 0.85)
 
 ### Texter Commands
 #### Start the conversion process:
 ```
-/cv (output: -v / --verbose ; -b / --brief)
+/cv [verbosity: -v / --verbose ; -b / --brief]
 ```
 (default: brief final output)
 
@@ -171,7 +184,7 @@ First, start by configuring your `target directory`. This is where SearTxT and T
 Script directory: D:\Downloads\SearTxT 
 Search method: exact match
 
-[SearTxT ~example]$ /ap C:\Users\DBVG\Documents\PDF Stuff
+[SearTxT ~example]$ /cd C:\Users\DBVG\Documents\PDF Stuff
 <ENTER>
 .......
 [SearTxT C:\Users\DBVG\Documents\PDF Stuff]$ _
@@ -182,7 +195,7 @@ Search method: exact match
 *****DBVG Texter ver 1.0*****
 Script directory: /home/DBVG/SearTxT
 
-[Texter ~example]$ /ap /home/DBVG/Documents/DOCX Stuff
+[Texter ~example]$ /cd /home/DBVG/Documents/DOCX Stuff
 <ENTER>
 .......
 [Texter /home/DBVG/Documents/DOCX Stuff]$ _
@@ -252,7 +265,7 @@ Unofficially, Texter by default can also *try to* convert the following file for
 .lisp .go .hs
 -----------------------------------------
 ```
-It accomplishes this by reading these files in plain text mode, and then copying the entire content to a separate `.txt` file (very *ingenious*, ikr). If you want additional file formats, simply add them to `unsupported_types.conf`
+It accomplishes this by reading these files in plain text mode, and then copying the contents to a separate `.txt` file (very *ingenious*, ikr). If you want additional file formats, simply add them to `unsupported_types.conf`
 
 ## Building From Source
 If you feel like compiling your own executables, you can theoretically do so with any compatible CPython compilers. Though the official releases were compiled with Nuitka, this section will provide instructions for Nuitka and PyInstaller.
@@ -296,30 +309,15 @@ python -m pip install nuitka
 
 Open the extracted `Source code` directory in the command line and run:
 ``` shell
-python -m nuitka --standalone --onefile --remove-output --windows-icon-from-ico=<icon_path> <source_file>
+python -m nuitka --standalone --onefile --remove-output <source_file>
 ```
 
 **Example (Windows):**
 ``` shell
-python -m nuitka --standalone --onefile --remove-output --windows-icon-from-ico=assets/floppy.ico .\SearTxT.py
+python -m nuitka --standalone --onefile --remove-output --windows-icon-from-ico=<icon_path> <source_file>
 ```
 
 If you have correctly configured everything, Nuitka should produce an executable within the same directory (`SearTxT.exe` on Windows, `SearTxT.bin` on Linux)
-
-## Differences Between the Branches
-### Mix-threaded 
-In this branch, the `exact searcher` is single-threaded, whereas the `approximate searcher` is multi-threaded.
-
-During my testing, I noticed that the exact searcher performs significantly better single-threaded than multi-threaded when the search database is relatively small (~ `0.01807s` vs. `0.02647s`). 
-
-However, this doesn't scale well at all with large databases, and using the exact searcher becomes rather tedious when it has to go through hundreds of files at once (took roughly 2s to return 220 results from a set of 81 files)
-
-### Single-threaded
-In this branch, both the `exact searcher` and the `approximate searcher` are single-threaded.
-
-This helps to reduce the size of the executable as well as the amount of memory that is used. However, the searchers perform *very* poorly and the searching process becomes *very* tedious.
-
-I don't really recommend using this branch for production purposes as it is maintained with minimal effort.
 
 ## Known Issues
 ### Repeating arguments
@@ -338,3 +336,4 @@ Discovered by Master Harry Dreamer
 Some anti-virus providers may falsely flag the SearTxT & Texter executables as viruses and then quarantine them.
 
 **Solution:** add an exception to the anti-virus program or disable it completely (not recommended)
+
