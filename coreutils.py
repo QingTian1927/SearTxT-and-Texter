@@ -15,6 +15,8 @@ from traceback import format_exc
 # -------------------------- #
 
 SEPARATOR = '<@v@>'
+ARG_SEPARATOR = '='
+PATH_SEPARATOR = os.path.sep
 
 class Colors:
     """Base class for terminal colors."""
@@ -24,9 +26,6 @@ class Colors:
     YELLOW = '\033[1;33m'
     BLUE = '\033[1;34m'
     CYAN = '\033[1;36m'
-
-    # Dictionary for quick translation
-    DICTIONARY = {'RED' : RED, 'GREEN' : GREEN, 'YELLOW' : YELLOW, 'BLUE' : BLUE, 'CYAN' : CYAN}
 
 class Tips:
     """Custom class for frequently used tips."""
@@ -47,21 +46,63 @@ class Tips:
 # MISCELLANEOUS FUNCTIONS #
 # ----------------------- #
 
-def write_settings(settings_directory, arguments):
+def write_settings(settings_path, arguments, arg_separator=ARG_SEPARATOR):
     """
     Write configuration arguments to a specified settings file.
 
     Keyword arguments:
-    * settings_directory (str)  --  the path to the settings file 
-    * arguments (list)          --  the list of arguments to write
-    """
-    if os.path.exists(settings_directory):
-        old_settings = f"{settings_directory}.old"
-        os.replace(settings_directory, old_settings)
+    * settings_path (str)  --  the path to the settings file 
+    * arguments (dict)     --  the dict of configurations to write
+    * arg_separator (str)  --  keyword/parameter separator
+                               (default: '=')
 
-    with open(settings_directory, 'w', encoding='utf8') as file:
-        for line in arguments:
-            file.write(f"{line}\n")
+    Example:
+    * arguments = {'target_dir' : '/home/DBVG/Documents/SearTxT'}
+    * arg_separator = '='
+    """
+    if os.path.exists(settings_path):
+        old_settings = f"{settings_path}.old"
+        os.replace(settings_path, old_settings)
+
+    with open(settings_path, 'w', encoding='utf8') as file:
+        for keyword in arguments:
+            parameter = arguments.get(keyword)
+            file.write(f"{keyword} {arg_separator} {parameter}")
+            # the spaces around arg_separator are necessary for read_settings()
+
+
+def read_settings(settings_path, arguments, no_copy=False):
+    """
+    Look for the specified keywords & parameters in a settings file.
+
+    Keyword arguments:
+    * settings_path (str) --  the path to the settings file
+    * arguments (dict)    --  the dict of keywords to search for
+                              (refer to write_settings() docstring)
+    * no_copy (bool)      --  whether or not to modify arguments directly
+    
+    Return value:
+    * settings_results (dict)  --  the processed dict of keywords & associated parameters
+    """
+    if not no_copy:
+        settings_results = arguments.copy()
+    else:
+        settings_results = arguments
+    with open(settings_path, 'r', encoding='utf8') as file:
+        for line in file:
+            line_split = tuple(line.strip().split())
+
+            keyword = line_split[0]
+            if not keyword or len(line_split) < 3:
+                continue
+            if keyword not in settings_results:
+                continue
+
+            arg_separator = line_split[1]
+            cutoff = f"{keyword} {arg_separator} "
+            parameter = line[len(cutoff):]
+            settings_results[keyword] = parameter
+    return settings_results
 
 
 def refresh_display(program, version, script_dir, notification='', method=''):
@@ -179,7 +220,6 @@ def thread_allocator(user_threads, total_cpu):
     * ThreadAllocatorArgumentError  --  if user_threads is an unknown arg
     * int(user_threads)             --  if user_threads is valid
     """
-    user_threads = user_threads.lstrip('/t').strip()
     try:
         if int(user_threads) > total_cpu:
             raise TooManyThreadError
@@ -207,9 +247,7 @@ class PathSeparatorError(Exception):
         self.message = message
         super().__init__(self.message)
 
-PATH_SEPARATOR = os.path.sep
-
-def change_target(script_dir, user_path, path_type, current_target=''):
+def change_target(script_dir, user_path, current_target=''):
     """
     Change the current target (working) directory.
 
@@ -217,9 +255,6 @@ def change_target(script_dir, user_path, path_type, current_target=''):
     (all str)
     * script_dir      --  the program's current directory
     * user_path       --  the user's specified directory
-    * path_type       --  the type of path given:
-                            '/cd' relative path
-                            '/ap' absolute path
     * current_target  --  the current target directory
 
     Return values:
@@ -227,25 +262,23 @@ def change_target(script_dir, user_path, path_type, current_target=''):
     * OSError           --  if the processed path doesn't exist
     * IndexError        --  if traverse_relative_path() fails
     """
-    user_path = user_path.lstrip(path_type).strip()
     for char in user_path:
         if char in ('/', '\\') and char != PATH_SEPARATOR:
             raise PathSeparatorError
 
-    if path_type == '/cd':
-        if user_path in ('.', f'.{PATH_SEPARATOR}'):
-            return current_target
-        if not user_path:
-            return script_dir
+    if user_path in ('.', f'.{PATH_SEPARATOR}'):  # emulate 'cd ./' & 'cd .'
+        return current_target
+    if not user_path:
+        return script_dir
 
-        if user_path.startswith('..'):
-            new_target = traverse_relative_path(user_path, current_target)
-        elif user_path.startswith('~'):
-            new_target = traverse_relative_path(user_path, script_dir)
-        else:
-            new_target = os.path.join(current_target, user_path)
-    elif path_type == '/ap':
-        new_target = user_path
+    if user_path.startswith('..'):
+        new_target = traverse_relative_path(user_path, current_target)
+    elif user_path.startswith('~'):
+        new_target = traverse_relative_path(user_path, script_dir)
+    else:
+        new_target = os.path.join(current_target, user_path)
+        # if user_path is an absolute path (e.g. /home/DBVG/Documents)
+        # os.path.join() will discard current_target and return user_path
 
     if os.path.exists(new_target):
         return new_target.strip()
@@ -363,7 +396,6 @@ def validate_ls_args(args, columns):
     * ListNumError  --  if ls_num <= 0
     * columns (int), ls_dir (str)
     """
-    args = args.lstrip('/ls').strip().split()
     ls_num = 0
     ls_dir = '-t'
 
@@ -386,71 +418,93 @@ def validate_ls_args(args, columns):
 
     return columns, ls_dir
 
-# TODO: rewrite the color dictionary for direct access to color values
-def register_file_colors(color_associations, color_values):
-    file_colors = {}
-    for association in color_associations:
-        color = color_associations.get(association)
-        if color in color_values:
-            color_code = color_values.get(color)
+def column_sort_lsdir(lsdir_contents, columns_num):
+    """
+    An extracted snippet of list_directory() for sorting lsdir contents.
 
-        file_types = association.split()
-        for entry in file_types:
-            if entry in file_colors:
-                continue
-            file_colors[entry] = color_code
+    Keyword arguments:
+    * lsdir_contents (str)  --  the contents of the working directory
+    * columns_num (int)     --  the number of display columns
 
-    return file_colors
+    Return values:
+    (all tuple)
+    * multiple_rows   --  the sorted but unprocessed list of lsdir contents
+    * columns_widths  --  the maximum widths of different display columns
 
-def list_directory(path, columns=2, file_colors='', unsupported_types=''):
-    max_lens = [0] * columns
-    row_index = 0
+    Visualization:
+    * multiple_rows = (
+    |   '<@v@>.hidden_file<@v@>.hidden_too<@v@>.hidden_xxx',
+    |   '<@v@>big_file<@v@>file1<@v@>file2',
+    |   '<@v@>file3<@v@>long_file<@v@>secret_file'
+    | )
+    * columns_widths = (12, 11, 11)
+    """
+    columns_widths = [0] * columns_num
+    column_index = 0
     single_row = ''
     multiple_rows = []
-    output_string = ''
 
-    # Parse and register color associations
-    if file_colors:
-        file_colors = register_file_colors(file_colors, Colors.DICTIONARY)
+    for ls_index, ls_entry in enumerate(lsdir_contents):
+        if len(ls_entry) > columns_widths[column_index]:
+            columns_widths[column_index] = len(ls_entry)
+        single_row = SEPARATOR.join((single_row, f"{ls_entry}"))
+        column_index += 1
 
-    # First separate the sorted entries into different columns
+        if column_index == columns_num or ls_index == len(lsdir_contents) - 1:
+            multiple_rows.append(single_row)
+            column_index = 0
+            single_row = ''
+
+    return tuple(multiple_rows), tuple(columns_widths)
+
+def list_directory(path, columns=2, file_colors='', unsupported_types=''):
+    """
+    A poor recreation of the UNIX 'ls' command.
+
+    Keyword arguments:
+    * path (str)                --  the working directory path
+    * columns (int)             --  the number of diplay columns
+    * file_colors (dict)        --  color codes for associated file types
+    * unsupported_types (iter)  --  a collection of unsupported files
+
+    Visualization:
+    * columns = 3
+    | .hidden_file  .hidden_too  .hidden_xxx
+    | big_file      file1        file2
+    | file3         long_file    secret_file
+    """    
     ls_entries = os.listdir(path)
     ls_entries.sort(key=str.lower)
 
-    for ls_index, ls_entry in enumerate(ls_entries):
-        if len(ls_entry) > max_lens[row_index]:
-            max_lens[row_index] = len(ls_entry)
-        single_row += f"{ls_entry}{SEPARATOR}"
-        row_index += 1
+    # First separate the sorted entries into different columns
+    multiple_rows, max_lens = column_sort_lsdir(ls_entries, columns)
 
-        if row_index == columns or ls_index == len(ls_entries) - 1:
-            multiple_rows.append(single_row)
-            row_index = 0
-            single_row = ''
-
+    column_index = 0
+    output_string = ''
     # Append additional spaces to the entries depending on their column position
     # Print the entire row once all columns are appended
     for ls_entry in multiple_rows:
         single_row = list(filter(None, ls_entry.split(SEPARATOR)))
         for index, item in enumerate(single_row):
-            spaces = ' ' * (max_lens[row_index] - len(item))
-            file_type = os.path.splitext(item)[1]
+            spaces = ' ' * (max_lens[column_index] - len(item))
             terminus = ' ' * 2
+            entry_sep = f"{spaces}{terminus}"
+            file_type = os.path.splitext(item)[1]
 
-            if row_index < columns:
+            if column_index < columns:
                 if file_colors and file_type in file_colors:
-                    output_string += f"{file_colors.get(file_type)}{item}{Colors.RESET}{spaces}{terminus}"
+                    output_string += f"{file_colors.get(file_type)}{item}{Colors.RESET}{entry_sep}"
                 elif unsupported_types and file_type in unsupported_types:
-                    output_string += f"{Colors.YELLOW}{item}{Colors.RESET}{spaces}{terminus}"
+                    output_string += f"{Colors.YELLOW}{item}{Colors.RESET}{entry_sep}"
                 elif os.path.isdir(os.path.join(path, item)):
-                    output_string += f"{Colors.CYAN}{item}{Colors.RESET}{spaces}{terminus}"
+                    output_string += f"{Colors.CYAN}{item}{Colors.RESET}{entry_sep}"
                 else:
-                    output_string += f"{item}{spaces}{terminus}"
-            row_index += 1
+                    output_string += f"{item}{entry_sep}"
+            column_index += 1
 
-            if row_index == columns or index == len(single_row) - 1:
+            if column_index == columns or index == len(single_row) - 1:
                 print(output_string.strip())
-                row_index = 0
+                column_index = 0
                 output_string = ''
     print()
 
@@ -467,8 +521,8 @@ def write_crashlog(config_dir, program, error):
     * program (str)      --  the program name (duh)
     * error (exception)  --  the traceback exception
     """
-    ran_num = randint(0, 5)
-    chances = (2, 4)
+    ran_num = randint(0, 4)
+    chances = (1, 3)
     if ran_num in chances:
         crash_messages = (
             r"Oops, sorry mate :(",
