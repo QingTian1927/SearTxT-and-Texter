@@ -1,0 +1,205 @@
+# -------------------------------------------- #     ∧＿∧
+# DBVG SearTxT & Texter                        #    (・∀・)／＼
+# Written and tested with Python 3.10.8        #    ノ つ つ ● )
+# Foreign dependencies: pypandoc, pdfminer.six #  ⊂、　ノ　＼／
+# -------------------------------------------- #    し′
+
+#####################################################################
+Thank you for downloading SearTxT & Texter :D
+
+This is the much improved version of my original Python Text 
+Searcher, which was unnecessarily bloated to say the least.
+
+### TABLE OF CONTENTS ###############################################
+
+1. FEATURES
+2. QUICKSTART GUIDE
+3. COMMANDS
+4. CONVERSION
+5. CONTACT INFORMATION
+
+### FEATURES ########################################################
+
+* 8 times the performance improvement :O
+* Search for exact or approximate matches
+* Support for DOCX, PDF and many more (See the CONVERSION section
+  for more details)
+* Automate boring, repetitive tasks with AutoScript (Coming soon)
+* Much eyecandy >.<
+* And many more, probably ;)
+
+### QUICKSTART GUIDE ################################################
+
+[0] - When you start SearTxT or Texter for the first time, you will
+      need to set the target (working) directory using the "/cd"
+      command. This is where are future operations will be performed.
+    @ Example (Windows Interface):
+      ----------------------------------------------------
+      *****DBVG Texter ver 1.0*****
+      Script directory: D:\Programs\SearTxT-and-Texter 
+
+      [Texter ~/example]$ /cd D:\Documents
+      <ENTER>
+      .......
+      [Texter D:\Documents]$ _
+      ----------------------------------------------------
+
+    @ Example (UNIX Interface):
+      ----------------------------------------------------
+      *****DBVG SearTxT ver 1.0*****
+      Script directory: D:\Programs\SearTxT-and-Texter
+      Search method: exact match
+
+      [SearTxT ~/example]$ /cd D:\Documents
+      <ENTER>
+      .......
+      [SearTxT D:\Documents]$ _
+      ----------------------------------------------------
+
+--- TEXTER-SPECIFIC INSTRUCTIONS ---
+
+[1] - Download and install pandoc with the "/pd" command if you 
+      haven't done so manually.
+
+[2] - Start the conversion process with the "/cv" command. Make sure
+      to **BACKUP** your files before hand because Texter will 
+      **DELETE** the original files after a successful conversion.
+
+[3] - Once the conversion finishes, simply check the results in the
+      specified target directory.
+
+--- SEARTXT-SPECIFIC INSTRUCTIONS ---
+
+[1] - You can specify the search method with the "/mt" command,
+      followed by the appropriate arguments.
+    @ Example: /mt -e or /mt --exact      -> exact match
+               /mt -p or /mt --proximity  -> approximate match
+
+[2] - Start searching by typing in the desired keyword(s) and then
+      hit <ENTER>. Make sure that your query does not start with the
+      "/" character.
+    @ Example: hello world
+      [WRONG]  /hello world  -> will return an error message
+
+[3] - If the program finds any matches, the results will be printed
+      on the screen. You can scroll through the list using a mouse or
+      another kind of tracking device.
+
+### COMMANDS ########################################################
+
+Usage    : /command <required parameters> [optional parameters]
+ or      : <any string of characters> (SearTxT only)
+Examples : /ls
+	       /ls 4 -s or /ls 4 --script
+	       /t
+	       /t -h    or /t --half
+
+--- GENERAL COMMANDS ---
+
+1. Change the target directory:
+
+        /cd [path: either an absolute or a relative path]
+
+        (default: change back to script directory)
+
+   Additional options:
+   * /cd ~ or just /cd  :  change back to the script directory
+
+   * /cd ~/example      :  quickly change to a folder inside the
+                           script directory
+
+   * /cd example        :  enter the specified folder within the
+                           current directory
+
+   * /cd ..             :  go up a directory
+
+   * /cd ../../..       :  go up a number of directories
+
+   * /cd ../example     :  go up a directory and then enter the
+                           specified directory
+
+   NOTE:
+   The path separator is platform-dependent:
+   * UNIX     :  /cd /home/DBVG/Documents
+
+   * Windows  :  /cd C:\Users\DBVG\Documents
+
+2. List the contents of a directory:
+
+        /ls [column: num > 0] [dir: -s / --script ; -t / --target]
+
+        (default: 2 columns, target directory)
+
+3. Allocate CPUs to multi-threaded processess:
+
+        /t [threads: num ; -a / --all ; -h / --half ; -q / --quarter]
+
+        (default: all threads)
+
+4. Miscellaneous:
+
+        /c              :  clear the display
+
+        /h              :  show all available commands
+
+        /q or <CTRL-C>  :  terminate the program
+
+--- SEARTXT COMMANDS ---
+
+1. Change the search method:
+
+        /mt [method: -e / --exact ; -p / --proximity]
+
+        (default: exact match)
+
+2. Change the minimum score for approximate matches:
+
+        /s [score: 0 < float < 1]
+
+        (default: 0.85)
+
+--- TEXTER COMMANDS ---
+
+1. Start the conversion process:
+
+        /cv [verbosity: -v / --verbose ; -b / --brief]
+
+        (default: brief final output)
+
+2. Miscellaneous:
+
+        /pd   :  download and install pandoc
+
+        /cat  :  cat
+
+### CONVERSION ######################################################
+
+* Officially, Texter supports DOCX and PDF files. However, conversion
+  from PDF to plain text may sometimes break the original formatting
+  of the converted documents. PDF files with a large number of
+  non-latin characters (e.g. Chinese characters) may also be rather
+  problematic.
+
+* Unofficially, Texter by default can also (try to) convert:
+  -----------------------------------------
+  .css .sass .html .htm .js .jsm .mjs .json
+  .markdown .md .mkd .org
+  .v .asc .log .conf
+  .doc
+  .py .py3 .pyi .pyx .py3x .wsgi
+  .rs .vbs .lua .p .pas .kt .java
+  .c .C .cs .c++ .cc .cpp .cxx
+  .lisp .go .hs
+  -----------------------------------------
+* It accomplishes this by literally reading these files in plain text
+  mode and then copying the entire content to a separate TXT file
+  (very "ingenious" ikr). You can add your own file formats by
+  appending them to "unsupported_types.conf" in the "config" folder.
+
+### CONTACT INFORMATION #############################################
+To report bugs or suggest other changes, please open up an issue
+using the following link (you will need a Github account):
+
+# --------------------------------------------------------- #
+# https://github.com/QingTian1927/SearTxT-and-Texter/issues #
+# --------------------------------------------------------- #
