@@ -12,11 +12,15 @@ Searcher, which was unnecessarily bloated to say the least.
 
 ### TABLE OF CONTENTS ###############################################
 
-1. FEATURES
-2. QUICKSTART GUIDE
-3. COMMANDS
-4. CONVERSION
-5. CONTACT INFORMATION
+1. FEATURES             (25)
+
+2. QUICKSTART GUIDE     (35)
+
+3. COMMANDS             (92)
+
+4. CONVERSION           (179)
+
+5. CONTACT INFORMATION  (203)
 
 ### FEATURES ########################################################
 
