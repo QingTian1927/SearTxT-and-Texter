@@ -94,9 +94,9 @@ Searcher, which was unnecessarily bloated to say the least.
 Usage    : /command <required parameters> [optional parameters]
  or      : <any string of characters> (SearTxT only)
 Examples : /ls
-	       /ls 4 -s or /ls 4 --script
-	       /t
-	       /t -h    or /t --half
+	   /ls 4 -s or /ls 4 --script
+	   /t
+	   /t -h    or /t --half
 
 --- GENERAL COMMANDS ---
 
@@ -207,3 +207,15 @@ using the following link (you will need a Github account):
 # --------------------------------------------------------- #
 # https://github.com/QingTian1927/SearTxT-and-Texter/issues #
 # --------------------------------------------------------- #
+
+If you have any questions, or if you have some other thoughts to
+share, you can create a conversation on the Github repo:
+
+# -------------------------------------------------------------- #
+# https://github.com/QingTian1927/SearTxT-and-Texter/discussions #
+# -------------------------------------------------------------- #
+
+A more detailed manual is also available on the Github repo. Make
+sure to consult it first to see if you questions have already been
+answered.
+
