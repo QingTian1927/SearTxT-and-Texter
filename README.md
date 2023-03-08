@@ -78,12 +78,12 @@ python -m pip install --upgrade pip
 
 ## Usage
 ```
-Usage    : /command <required parameters> [optional parameters]
- or      : <any string of characters> (SearTxT only)
+Usage : /command <required parameters> [optional parameters]
+ or   : <any string of characters> (SearTxT only)
 
-Examples : /ls
-           /ls 4 -s or /ls 4 --script
-	   /t -h    or /t --half
+Ex    : /ls
+        /ls 4 -s or /ls 4 --script
+        /t -h    or /t --half
 ```
 
 ### General Commands
