@@ -83,7 +83,7 @@ Usage    : /command <required parameters> [optional parameters]
 
 Examples : /ls
            /ls 4 -s or /ls 4 --script
-	       /t -h    or /t --half
+	   /t -h    or /t --half
 ```
 
 ### General Commands
@@ -120,7 +120,7 @@ Examples : /ls
 /cd ../example1/example2  # To go up a number of directories and enter the specified directory
 ```
 
-#### List the content of a directory:
+#### List the contents of a directory:
 ```
 /ls [column: num > 0] [dir: -s / --script ; -t / --target]
 ``` 
