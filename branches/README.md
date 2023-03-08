@@ -20,6 +20,6 @@ This helps to reduce the size of the executable as well as the amount of memory 
 
 I don't really recommend using this branch for production purposes as it is maintained with minimal effort.
 
-### Texter Pre-Coreutils
-This is the original version of Texter prior to the Coreutils Refactor, which comes only in one single file and is much more portable as a result.
+### SearTxT & Texter Pre-Coreutils
+This is the original version of SearTxT & Texter prior to the Coreutils Refactor, which comes only in one single file and is much more portable as a result.
 
