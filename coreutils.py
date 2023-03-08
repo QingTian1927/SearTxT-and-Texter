@@ -67,7 +67,7 @@ def write_settings(settings_path, arguments, arg_separator=ARG_SEPARATOR):
     with open(settings_path, 'w', encoding='utf8') as file:
         for keyword in arguments:
             parameter = arguments.get(keyword)
-            file.write(f"{keyword} {arg_separator} {parameter}")
+            file.write(f"{keyword} {arg_separator} {parameter}\n")
             # the spaces around arg_separator are necessary for read_settings()
 
 
@@ -91,6 +91,8 @@ def read_settings(settings_path, arguments, no_copy=False):
     with open(settings_path, 'r', encoding='utf8') as file:
         for line in file:
             line_split = tuple(line.strip().split())
+            if not line_split:
+                continue
 
             keyword = line_split[0]
             if not keyword or len(line_split) < 3:
@@ -101,7 +103,7 @@ def read_settings(settings_path, arguments, no_copy=False):
             arg_separator = line_split[1]
             cutoff = f"{keyword} {arg_separator} "
             parameter = line[len(cutoff):]
-            settings_results[keyword] = parameter
+            settings_results[keyword] = parameter.strip()
     return settings_results
 
 
@@ -133,6 +135,7 @@ def refresh_display(program, version, script_dir, notification='', method=''):
         print(notification)
     else:
         print()
+
 
 def get_confirmation(choice):
     """
@@ -226,14 +229,15 @@ def thread_allocator(user_threads, total_cpu):
         if int(user_threads) <= 0:
             raise ZeroThreadError
     except ValueError:
-        if user_threads not in ('-h', '--half', '-q', '--quarter', '-a', '--all', ''):
+        VALID_ARGS = ('-h', '--half', '-q', '--quarter', '-a', '--all', '')
+        if user_threads not in VALID_ARGS:
             raise ThreadAllocatorArgumentError
         # Ceil ensures that at least 1 cpu thread will always be allocated
-        if user_threads in ('-h', '--half'):
+        if user_threads in VALID_ARGS[0:1]:
             user_threads = ceil(total_cpu / 2)
-        elif user_threads in ('-q', '--quarter'):
+        elif user_threads in VALID_ARGS[2:3]:
             user_threads = ceil(total_cpu / 4)
-        elif user_threads in ('-a', '--all', ''):
+        elif user_threads in VALID_ARGS[4:6]:
             user_threads = total_cpu
     return int(user_threads)
 

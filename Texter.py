@@ -70,7 +70,7 @@ CAT = (
 )
 
 COMMANDS = (
-    "Usage: /[command] <required parameter> [optional parameter]\n",
+    "Usage: /command <required parameter> [optional parameter]\n",
     "/cd [path]          : change the convert directory to another directory",
     "/ls [column] [dir]  : list all items in the convert directory",
     "/cv [verbosity]     : start the conversion process",
