@@ -231,6 +231,7 @@ def pd_command():
         print(f"{Tips.ERROR} Connection timed out. Couldn't download pandoc")
     print()
 
+
 def t_command(usr_input, system_cpus, current_cpus):
     """The extracted function for '/t (threads)'"""
     usr_input = usr_input.lstrip('/t').strip()
@@ -497,4 +498,3 @@ if __name__ == '__main__':
     except Exception as err:
         write_crashlog(CONFIG_DIR, PROGRAM, err)
         user_input = input("Press <ENTER> to exit ")
-

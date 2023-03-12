@@ -71,6 +71,9 @@ COMMANDS = (
     '/t [thread]         : allocate a number of cpu threads to the searching process\n'
 )
 
+# -------------------------- #
+# SEARTXT-SPECIFIC FUNCTIONS #
+# -------------------------- #
 
 def exact_search(args):
     args = tuple(args.split(SEPARATOR))
@@ -96,7 +99,7 @@ def exact_search(args):
 
 
 def approximate_search(args):
-    args = args.split(SEPARATOR)
+    args = tuple(args.split(SEPARATOR))
     found = 0
     search_output = ''
 
@@ -186,6 +189,15 @@ if __name__ == '__main__':
     # SEARCHER RELATED FUNCTIONS #
     # -------------------------- #
 
+    def parse_search_results(imap_results, results):
+        for output, found in imap_results:
+            if not output or not found:
+                continue
+            print(f"{output.strip()}")
+            results += found
+        return results
+
+
     def exact_pool(arguments, workers):
         results = 0
         with Pool(workers) as pool:
@@ -200,35 +212,22 @@ if __name__ == '__main__':
         return results
 
 
-    def parse_search_results(imap_results, results):
-        for output, found in imap_results:
-            if not output or not found:
-                continue
-            print(f"{output.strip()}")
-            results += found
-        return results
-
-
-    def searcher_caller(search_dir, method, query, score, threads):
+    def searchers_wrapper(search_dir, method, query, score, threads):
         arguments = []
+        start_time = perf_counter()
+        
         if method == 'exact_match':
             for file in os.listdir(search_dir):
                 arguments.append(f"{file}{SEPARATOR}{query}{SEPARATOR}{search_dir}")
             arguments = tuple(arguments)
             results = exact_pool(arguments, threads)
-            return results
-
-        if method == 'proximity_match':
+            end_time = perf_counter()
+        elif method == 'proximity_match':
             for file in os.listdir(search_dir):
                 arguments.append(f"{file}{SEPARATOR}{query}{SEPARATOR}{search_dir}{SEPARATOR}{score}")
             arguments = tuple(arguments)
             results = approx_pool(arguments, score, threads)
-            return results
-
-    def searchers_wrapper(search_dir, method, query, score, threads):
-        start_time = perf_counter()
-        results = searcher_caller(search_dir, method, query, score, threads)
-        end_time = perf_counter()
+            end_time = perf_counter()
 
         print(f"\n{Tips.FINISH} Found {Colors.CYAN}{results}{Colors.RESET} results")
         print(f"{Tips.FINISH} Finished in {Colors.CYAN}{end_time - start_time:.5f}{Colors.RESET} seconds with {Colors.CYAN}({threads}){Colors.RESET} processorsn")
@@ -243,7 +242,6 @@ if __name__ == '__main__':
 
 
     def t_command(usr_input, system_cpus, current_cpus):
-        """The extracted function for '/t (threads)'"""
         usr_input = usr_input.lstrip('/t').strip()
         try:
             allocator_output = thread_allocator(usr_input, system_cpus)
