@@ -230,7 +230,7 @@ if __name__ == '__main__':
             end_time = perf_counter()
 
         print(f"\n{Tips.FINISH} Found {Colors.CYAN}{results}{Colors.RESET} results")
-        print(f"{Tips.FINISH} Finished in {Colors.CYAN}{end_time - start_time:.5f}{Colors.RESET} seconds with {Colors.CYAN}({threads}){Colors.RESET} processorsn")
+        print(f"{Tips.FINISH} Finished in {Colors.CYAN}{end_time - start_time:.5f}{Colors.RESET} seconds with {Colors.CYAN}({threads}){Colors.RESET} processors")
         print(f"-" * len(f"$$ Finished in {end_time - start_time:.5f} seconds with ({threads}) processors") + '\n')
 
     # -------------------------- #
