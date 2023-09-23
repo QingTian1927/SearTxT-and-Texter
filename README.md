@@ -1,7 +1,7 @@
 # SearTxT & Texter
 These are the improved versions of my original Python Text Searcher, which was unnecessarily bloated, to say the least.
 
-**2020-09-02:** SearTxT-and-Texter won't be receiving any updates for a *long* while.
+**2023-09-02:** SearTxT-and-Texter won't be receiving any updates for a *long* while.
 
 * **SearTxT** is a simple command-line tool to search for virtually any string of text contained within `.txt` files in a user-specified directory.
 
